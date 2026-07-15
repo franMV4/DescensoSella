@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#20342A">
+<title>Descenso del Sella · Guía de viaje · Asturias</title>
+<meta name="description" content="Guía de viaje del Descenso del Sella y el oriente de Asturias: qué ver, dónde comer, gasolineras más baratas en tiempo real, el tiempo, noticias y sorteo del grupo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛶</text></svg>">
+<style>
+  :root{
+    /* nombres heredados por el JS — remapeados a una paleta "Asturias" editorial */
+    --cielo:#8FB2B4; --cielo2:#CBDCD8; --cielo-hondo:#4E7C82;
+    --papel:#EFE8DA; --papel-card:#FBF7EC; --papel-linea:#DCD1BB;
+    --rojo:#B4472B; --rojo-hondo:#8C3620;            /* teja / rust */
+    --amarillo:#C08A2A; --verde:#31624A;             /* sidra / prau */
+    --uva:#2C6E78; --uva-hondo:#1C4A52;              /* mar Cantábrico */
+    --tinta:#22302A; --tinta-suave:#6C776C;
+    /* extras del rediseño */
+    --pino:#1E332A; --pino2:#2A473A; --niebla:#F6F1E6;
+    --sombra:0 1px 2px rgba(30,40,34,.05), 0 14px 34px -18px rgba(30,40,34,.30);
+    --sombra-s:0 1px 2px rgba(30,40,34,.06), 0 8px 22px -14px rgba(30,40,34,.28);
+    --radio:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Hanken Grotesk',system-ui,sans-serif;
+    color:var(--tinta);
+    background:var(--papel);
+    background-image:
+      radial-gradient(rgba(34,48,42,.035) 1px,transparent 1.4px),
+      linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0) 240px);
+    background-size:26px 26px,100% 100%;
+    -webkit-tap-highlight-color:transparent;
+    padding-bottom:90px;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  h1,h2,h3{font-family:'Fraunces',Georgia,serif;font-weight:600;line-height:1.06;margin:0;letter-spacing:-.01em;font-optical-sizing:auto}
+  a{color:var(--uva-hondo)}
+  .wrap{max-width:720px;margin:0 auto;padding:0 20px}
+
+  /* ---------- HERO ---------- */
+  header.hero{
+    position:relative;overflow:hidden;isolation:isolate;
+    background:
+      radial-gradient(120% 80% at 78% -10%,rgba(44,110,120,.55),transparent 60%),
+      linear-gradient(168deg,var(--pino) 0%,var(--pino2) 52%,#35553F 100%);
+    padding:34px 0 0;color:#F1ECDD;
+  }
+  header.hero::before{ /* grano/atmósfera sutil */
+    content:"";position:absolute;inset:0;z-index:3;opacity:.5;pointer-events:none;
+    background-image:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1.2px);background-size:24px 24px;
+  }
+  /* ---- aurora animada de fondo del título ---- */
+  .aurora{position:absolute;inset:-20% -10% 0;z-index:0;overflow:hidden;pointer-events:none;
+    filter:blur(52px) saturate(1.2)}
+  .aurora span{position:absolute;display:block;border-radius:50%;mix-blend-mode:screen;will-change:transform,opacity}
+  .aurora span:nth-child(1){width:460px;height:460px;left:-8%;top:-30%;opacity:.6;
+    background:radial-gradient(circle,#37B0A2,transparent 66%);animation:aur1 19s ease-in-out infinite alternate}
+  .aurora span:nth-child(2){width:420px;height:420px;right:-10%;top:-24%;opacity:.5;
+    background:radial-gradient(circle,#D2A03A,transparent 64%);animation:aur2 24s ease-in-out infinite alternate}
+  .aurora span:nth-child(3){width:540px;height:380px;left:22%;top:2%;opacity:.5;
+    background:radial-gradient(circle,#5FA26E,transparent 68%);animation:aur3 28s ease-in-out infinite alternate}
+  .aurora span:nth-child(4){width:300px;height:300px;left:46%;top:-34%;opacity:.42;
+    background:radial-gradient(circle,#8FD9CB,transparent 62%);animation:aur4 16s ease-in-out infinite alternate}
+  @keyframes aur1{0%{transform:translate(0,0) scale(1)}100%{transform:translate(80px,46px) scale(1.18)}}
+  @keyframes aur2{0%{transform:translate(0,0) scale(1)}100%{transform:translate(-70px,54px) scale(1.22)}}
+  @keyframes aur3{0%{transform:translate(0,0) scale(1)}50%{transform:translate(-48px,24px) scale(1.12)}100%{transform:translate(36px,-14px) scale(1.06)}}
+  @keyframes aur4{0%{transform:translate(0,0) scale(.9);opacity:.28}100%{transform:translate(40px,60px) scale(1.25);opacity:.5}}
+  .hero .wrap{position:relative;z-index:2}
+  .montes{position:relative;z-index:2}
+  .hero-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .kicker{font-family:'Hanken Grotesk';font-weight:700;font-size:11px;letter-spacing:.28em;
+    text-transform:uppercase;color:#9FC3B7}
+  .kicker .k-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--amarillo);margin:0 8px -1px;box-shadow:0 0 0 4px rgba(192,138,42,.16)}
+  .hero-yr{font-family:'Fraunces';font-style:italic;font-weight:400;font-size:15px;color:#C7D8CE}
+  .hero h1{font-size:clamp(42px,12vw,66px);font-weight:600;color:#FBF7EC;margin:16px 0 0;letter-spacing:-.025em}
+  .hero h1 em{font-style:italic;font-weight:400;color:var(--amarillo)}
+  .hero .lugar{margin-top:10px;font-size:15.5px;font-weight:600;color:#BFD3C6;max-width:34ch;line-height:1.5}
+  .fechas{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .pill-fecha{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);color:#EBE6D6;
+    padding:6px 13px;border-radius:999px;font-weight:600;font-size:12.5px;backdrop-filter:blur(4px);letter-spacing:.01em}
+  .pill-fecha b{color:var(--amarillo);font-weight:800}
+  /* ruta estática Arriondas → Ribadesella (sin animación) */
+  .ruta{margin:24px 0 0;position:relative;height:40px}
+  .ruta .linea{position:absolute;top:14px;left:8px;right:8px;height:0;border-top:1.5px dashed rgba(255,255,255,.35)}
+  .ruta .pt{position:absolute;top:2px;font-family:'Hanken Grotesk';font-size:12px;color:#DDE7DE;font-weight:700;width:auto;letter-spacing:.02em}
+  .ruta .pt .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--amarillo);
+    box-shadow:0 0 0 4px rgba(192,138,42,.22);margin-right:7px;vertical-align:1px}
+  .ruta .pt small{display:block;font-weight:500;font-size:10.5px;color:#8FB0A0;text-transform:uppercase;letter-spacing:.14em;margin-top:2px;padding-left:16px}
+  .ruta .ini{left:0;text-align:left}
+  .ruta .fin{right:0;text-align:right}
+  .ruta .fin .dot{background:#F1ECDD;box-shadow:0 0 0 4px rgba(241,236,221,.18);margin:0 0 0 7px}
+  .ruta .fin small{padding-left:0;padding-right:16px}
+  /* silueta de montañas (Picos de Europa) */
+  .montes{display:block;width:100%;height:auto;margin-top:22px;margin-bottom:-1px}
+
+  /* ---------- SECCIONES ---------- */
+  main{padding-top:6px}
+  section.tab{display:none;animation:fade .4s ease both}
+  section.tab.on{display:block}
+  .sec-head{margin:30px 2px 4px}
+  .sec-head h2{font-size:29px;color:var(--tinta);font-weight:600;letter-spacing:-.02em}
+  .sec-head .eyebrow{display:block;font-family:'Hanken Grotesk';font-size:11px;color:var(--rojo);
+    font-weight:700;letter-spacing:.22em;text-transform:uppercase;margin-bottom:9px}
+  .sec-head .eyebrow::before{content:"";display:inline-block;width:22px;height:1.5px;background:var(--rojo);
+    vertical-align:3px;margin-right:9px}
+  .sec-sub{color:var(--tinta-suave);font-size:14.5px;margin:8px 2px 18px;font-weight:500;line-height:1.5;max-width:52ch}
+
+  /* filtros */
+  .filtros{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:11px}
+  .chip{border:1px solid var(--papel-linea);background:transparent;color:var(--tinta-suave);
+    font-family:'Hanken Grotesk';font-weight:600;font-size:13.5px;padding:7px 14px;border-radius:999px;cursor:pointer;
+    transition:all .16s ease;user-select:none}
+  .chip:hover{color:var(--tinta);border-color:var(--tinta-suave)}
+  .chip.act{background:var(--rojo);color:#fff;border-color:var(--rojo)}
+  .chip.act.verde{background:var(--verde);border-color:var(--verde);color:#fff}
+  .chip.act.uva{background:var(--uva);border-color:var(--uva);color:#fff}
+  .buscar{width:100%;border:1px solid var(--papel-linea);background:var(--papel-card);border-radius:12px;
+    padding:12px 15px;font-family:'Hanken Grotesk';font-weight:500;font-size:15px;color:var(--tinta);margin-bottom:14px;
+    box-shadow:var(--sombra-s)}
+  .buscar::placeholder{color:#a7a293}
+  .buscar:focus{outline:none;border-color:var(--uva);box-shadow:0 0 0 3px rgba(44,110,120,.14)}
+
+  /* tarjetas editoriales */
+  .grid{display:grid;grid-template-columns:1fr;gap:16px}
+  @media(min-width:560px){.grid{grid-template-columns:1fr 1fr}}
+  .card{position:relative;background:var(--papel-card);border:1px solid var(--papel-linea);
+    border-radius:var(--radio);box-shadow:var(--sombra-s);padding:0 0 16px;overflow:hidden;
+    transition:transform .22s cubic-bezier(.2,.7,.3,1),box-shadow .22s}
+  .card:hover{transform:translateY(-3px);box-shadow:var(--sombra)}
+  .foto{background:var(--niebla);position:relative;margin-bottom:14px;overflow:hidden;
+    display:flex;align-items:center;justify-content:center;min-height:64px}
+  .foto .emoji{font-size:46px;line-height:1;padding:34px 0;filter:grayscale(.05)}
+  .foto img{width:100%;height:172px;object-fit:cover;display:block;
+    background:linear-gradient(135deg,var(--cielo2),var(--papel-linea));
+    filter:saturate(1.02);animation:fadeimg .5s ease}
+  @keyframes fadeimg{from{opacity:0}to{opacity:1}}
+  .foto::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(180deg,transparent 55%,rgba(20,28,22,.42))}
+  .foto .cap{position:absolute;bottom:9px;left:14px;right:14px;z-index:1;
+    font-family:'Fraunces';font-style:italic;font-size:15px;color:#FBF7EC;font-weight:400;
+    text-shadow:0 1px 6px rgba(0,0,0,.4);letter-spacing:.01em}
+  .card h3{font-size:20px;margin:0 16px 5px;color:var(--tinta);line-height:1.15}
+  .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 16px 10px;font-size:12.5px;font-weight:600;color:var(--tinta-suave)}
+  .stars{color:var(--amarillo);font-weight:800}
+  .tag{background:rgba(44,110,120,.10);color:var(--uva-hondo);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700;letter-spacing:.02em}
+  .tag.comer{background:rgba(180,71,43,.12);color:var(--rojo-hondo)}
+  .desc{font-size:14px;line-height:1.55;color:#414c44;margin:0 16px 14px}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;margin:0 16px}
+  .btn{display:inline-flex;align-items:center;gap:6px;border-radius:9px;padding:9px 15px;font-family:'Hanken Grotesk';
+    font-weight:700;font-size:13.5px;text-decoration:none;cursor:pointer;border:1px solid transparent;transition:all .15s;letter-spacing:.01em}
+  .btn:active{transform:scale(.97)}
+  .btn-p{background:var(--rojo);color:#fff}
+  .btn-p:hover{background:var(--rojo-hondo)}
+  .btn-s{background:transparent;color:var(--uva-hondo);border-color:var(--papel-linea)}
+  .btn-s:hover{border-color:var(--uva);background:rgba(44,110,120,.06)}
+  .empty{text-align:center;color:var(--tinta-suave);font-weight:600;padding:34px 10px;grid-column:1/-1}
+
+  /* ---------- GASOLINERAS ---------- */
+  #map{height:300px;border-radius:var(--radio);border:1px solid var(--papel-linea);box-shadow:var(--sombra-s);margin-bottom:14px;background:#dbe6e4}
+  #map-sitios{height:290px;border-radius:var(--radio);border:1px solid var(--papel-linea);box-shadow:var(--sombra-s);margin:2px 0 10px;background:#dbe6e4}
+  .mk-sitio{width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;
+    background:var(--uva);border:2px solid #FBF7EC;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
+    box-shadow:0 2px 6px rgba(30,40,34,.4);cursor:pointer}
+  .mk-sitio>span{transform:rotate(45deg);line-height:1}
+  .mk-sitio.comer{background:var(--rojo)}
+  .mapleyenda{display:flex;gap:16px;justify-content:center;font-size:12px;font-weight:600;color:var(--tinta-suave);margin:0 0 16px;letter-spacing:.02em}
+  .mapleyenda i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+  .pop-sitio{font-family:'Hanken Grotesk',sans-serif;min-width:150px}
+  .pop-sitio b{font-family:'Fraunces';font-size:16px;color:var(--tinta)}
+  .pop-sitio .ps-meta{font-size:12px;color:var(--tinta-suave);font-weight:600;margin:3px 0 8px}
+  .pop-sitio a,.pop-sitio .pop-info{display:inline-block;background:var(--uva);color:#fff;text-decoration:none;font-weight:700;
+    font-size:12px;padding:6px 11px;border-radius:8px;border:none;cursor:pointer;font-family:'Hanken Grotesk';transition:background .14s}
+  .pop-sitio .pop-info:hover{background:var(--uva-hondo)}
+  /* destello al enlazar tarjeta ⇄ mapa */
+  @keyframes cardflash{0%{box-shadow:0 0 0 0 rgba(44,110,120,0)}18%{box-shadow:0 0 0 4px rgba(44,110,120,.45),var(--sombra)}100%{box-shadow:var(--sombra-s)}}
+  .card.flash{animation:cardflash 1.7s ease}
+  @keyframes mkflash{0%,100%{transform:rotate(-45deg) scale(1)}45%{transform:rotate(-45deg) scale(1.4)}}
+  .mk-sitio.flash{animation:mkflash .6s ease 2;box-shadow:0 0 0 5px rgba(44,110,120,.35),0 2px 6px rgba(30,40,34,.4);z-index:9}
+  .fuel-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+  .gas-item{display:flex;gap:14px;align-items:center;background:var(--papel-card);border:1px solid var(--papel-linea);
+    border-radius:12px;padding:13px 15px;margin-bottom:9px;cursor:pointer;box-shadow:var(--sombra-s);transition:transform .14s,border-color .14s}
+  .gas-item:hover{transform:translateY(-1px);border-color:var(--tinta-suave)}
+  .gas-item.top{border-color:var(--verde);border-left:3px solid var(--verde);background:linear-gradient(90deg,rgba(49,98,74,.05),var(--papel-card) 40%)}
+  .rank{font-family:'Fraunces';font-weight:500;font-size:17px;width:26px;text-align:center;color:var(--tinta-suave);flex:none}
+  .gas-info{flex:1;min-width:0}
+  .gas-info b{font-size:15px;font-weight:700;display:block;color:var(--tinta);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .gas-info span{font-size:12.5px;color:var(--tinta-suave);font-weight:500}
+  .precio{font-family:'Fraunces';font-weight:600;font-size:23px;color:var(--rojo);flex:none;text-align:right;letter-spacing:-.02em}
+  .precio small{display:block;font-size:10.5px;color:var(--tinta-suave);font-weight:600;font-family:'Hanken Grotesk';letter-spacing:.04em}
+  .ribbon{position:absolute;font-size:11px}
+  .badge-barata{background:var(--verde);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;margin-left:6px;letter-spacing:.03em;text-transform:uppercase;vertical-align:1px}
+  .estado{font-size:13px;font-weight:500;color:var(--tinta-suave);margin:2px 2px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .estado b{color:var(--tinta);font-weight:700}
+  .leyenda{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;font-weight:600;color:var(--tinta-suave);margin-bottom:12px}
+  .leyenda i{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:-1px}
+  .mk-pin{background:#fff;border:2px solid #FBF7EC;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
+    width:30px;height:30px;box-shadow:0 2px 5px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center}
+  .mk-pin span{transform:rotate(45deg);font-family:'Hanken Grotesk';font-weight:800;font-size:9px;color:#fff}
+
+  /* ---------- TIEMPO ---------- */
+  .clima-toggle{display:flex;gap:7px;margin-bottom:16px}
+  .clima-now{position:relative;overflow:hidden;
+    background:radial-gradient(120% 90% at 85% -20%,rgba(255,255,255,.35),transparent 55%),linear-gradient(165deg,var(--cielo-hondo),var(--uva-hondo));
+    border:1px solid rgba(255,255,255,.14);border-radius:var(--radio);
+    box-shadow:var(--sombra);padding:22px;color:#EAF2ED;margin-bottom:20px}
+  .clima-now .fila{display:flex;align-items:center;gap:16px}
+  .clima-now .temp{font-family:'Fraunces';font-weight:500;font-size:58px;line-height:1;color:#FBF7EC;letter-spacing:-.03em}
+  .clima-now .ico{font-size:56px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.25))}
+  .clima-now .cond{font-family:'Fraunces';font-weight:500;font-size:18px;color:#FBF7EC}
+  .clima-now .sub{font-size:13px;font-weight:500;opacity:.82;margin-top:2px}
+  .clima-datos{display:flex;gap:18px;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.16);font-weight:600;font-size:13px;color:#DCE8E0}
+  .forecast{display:flex;gap:9px;overflow-x:auto;padding:4px 2px 12px;-webkit-overflow-scrolling:touch}
+  .dia{flex:none;width:76px;background:var(--papel-card);border:1px solid var(--papel-linea);border-radius:12px;
+    padding:12px 6px;text-align:center;box-shadow:var(--sombra-s)}
+  .dia.evt{border-color:var(--rojo);background:linear-gradient(180deg,rgba(180,71,43,.07),var(--papel-card));box-shadow:0 0 0 1px var(--rojo) inset}
+  .dia .d{font-family:'Hanken Grotesk';font-weight:700;font-size:13px;color:var(--tinta);text-transform:capitalize}
+  .dia .fe{font-size:11px;color:var(--tinta-suave);font-weight:500;margin-bottom:6px}
+  .dia .di{font-size:26px;margin:2px 0}
+  .dia .tmax{font-family:'Fraunces';font-weight:600;font-size:17px;color:var(--tinta)}
+  .dia .tmin{font-size:12px;color:var(--tinta-suave);font-weight:600}
+  .dia .lluvia{font-size:11px;color:var(--uva);font-weight:700;margin-top:3px}
+  .dia{cursor:pointer;transition:transform .18s cubic-bezier(.34,1.3,.64,1),box-shadow .18s,border-color .18s}
+  .dia:active{transform:scale(.96)}
+  .dia.sel{border-color:var(--pino);transform:translateY(-3px);
+    box-shadow:0 0 0 1.5px var(--pino) inset, 0 10px 22px -12px rgba(30,51,42,.5)}
+  .dia.sel.evt{border-color:var(--rojo);box-shadow:0 0 0 1.5px var(--rojo) inset, 0 10px 22px -12px rgba(180,71,43,.5)}
+
+  /* Panel horario inline: se despliega hacia abajo desde la fila de días */
+  .dia-panel{display:grid;grid-template-rows:0fr;transition:grid-template-rows .38s cubic-bezier(.4,0,.2,1);
+    margin-top:4px}
+  .dia-panel.open{grid-template-rows:1fr}
+  .dia-panel-clip{overflow:hidden;min-height:0}
+  .dia-panel-inner{position:relative;background:
+      radial-gradient(120% 140% at 12% -20%,rgba(44,110,120,.10),transparent 60%),
+      var(--papel-card);
+    border:1px solid var(--papel-linea);border-radius:16px;box-shadow:var(--sombra-s);
+    padding:16px 4px 14px;margin-top:8px;
+    opacity:0;transform:translateY(-8px);transition:opacity .3s ease .06s,transform .3s cubic-bezier(.4,0,.2,1) .06s}
+  .dia-panel.open .dia-panel-inner{opacity:1;transform:none}
+  /* pico que apunta a la fila de arriba */
+  .dia-panel-inner::before{content:"";position:absolute;top:-7px;width:13px;height:13px;
+    background:var(--papel-card);border-left:1px solid var(--papel-linea);border-top:1px solid var(--papel-linea);
+    transform:rotate(45deg);left:var(--pico,50%);margin-left:-6px;transition:left .3s cubic-bezier(.4,0,.2,1)}
+  .dph{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:0 16px 12px;margin:0 0 6px;
+    border-bottom:1px solid var(--papel-linea)}
+  .dph h3{font-family:'Fraunces';font-weight:600;font-size:23px;text-transform:capitalize;letter-spacing:-.01em}
+  .dph .rango{font-family:'Fraunces';font-weight:500;font-size:15px;color:var(--tinta-suave)}
+  .dph .rango b{color:var(--tinta)}
+  .dph .cerrar{margin-left:auto;background:none;border:1px solid var(--papel-linea);border-radius:999px;
+    width:28px;height:28px;font-size:14px;line-height:1;color:var(--tinta-suave);cursor:pointer;
+    display:grid;place-items:center;transition:background .14s,color .14s}
+  .dph .cerrar:hover{background:var(--papel);color:var(--tinta)}
+  /* tira de horas: columnas verticales tipo mini-gráfico */
+  .horas{display:flex;gap:2px;overflow-x:auto;padding:14px 14px 4px;-webkit-overflow-scrolling:touch;
+    scrollbar-width:thin}
+  .hcol{flex:none;width:52px;display:flex;flex-direction:column;align-items:center;gap:5px;
+    padding:6px 2px 8px;border-radius:11px;transition:background .14s}
+  .hcol:hover{background:rgba(44,110,120,.06)}
+  .hcol.ahora{background:rgba(180,71,43,.09);box-shadow:0 0 0 1px rgba(180,71,43,.25) inset}
+  .hcol .hh{font-weight:700;font-size:11px;color:var(--tinta-suave);letter-spacing:.02em}
+  .hcol .hi{font-size:21px;line-height:1}
+  .hcol .ht{font-family:'Fraunces';font-weight:600;font-size:16px;color:var(--tinta)}
+  .hbar{width:6px;border-radius:999px;background:linear-gradient(180deg,var(--rojo),var(--amarillo));
+    min-height:5px;transition:height .4s cubic-bezier(.4,0,.2,1)}
+  .hcol .hl{font-size:10px;font-weight:700;color:var(--uva);min-height:13px}
+  .hcol .hl.seco{opacity:.28}
+
+  /* ---------- NOTICIAS ---------- */
+  .noticia{display:block;background:var(--papel-card);border:1px solid var(--papel-linea);border-left:3px solid var(--uva);
+    border-radius:10px;padding:14px 16px;margin-bottom:9px;text-decoration:none;color:var(--tinta);box-shadow:var(--sombra-s);transition:transform .14s,border-left-color .14s}
+  .noticia:hover{transform:translateX(2px);border-left-color:var(--rojo)}
+  .noticia b{font-family:'Fraunces';font-weight:500;font-size:16px;display:block;line-height:1.3;margin-bottom:5px}
+  .noticia span{font-size:12px;color:var(--tinta-suave);font-weight:600;letter-spacing:.02em}
+
+  /* ---------- SORTEO ---------- */
+  .sorteo-box{background:var(--papel-card);border:1px solid var(--papel-linea);border-radius:var(--radio);
+    box-shadow:var(--sombra-s);padding:18px;margin-bottom:16px}
+  .add-row{display:flex;gap:8px;margin-bottom:14px}
+  .add-row input{flex:1;border:1px solid var(--papel-linea);border-radius:10px;padding:11px 13px;font-family:'Hanken Grotesk';
+    font-weight:500;font-size:15px;color:var(--tinta);background:#fff}
+  .add-row input:focus{outline:none;border-color:var(--rojo);box-shadow:0 0 0 3px rgba(180,71,43,.14)}
+  .names{display:flex;flex-wrap:wrap;gap:8px;min-height:10px;margin-bottom:6px}
+  .name-chip{background:#fff;border:1px solid var(--papel-linea);border-radius:999px;padding:6px 8px 6px 14px;
+    display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px}
+  .name-chip.out{opacity:.4;text-decoration:line-through}
+  .name-chip button{border:none;background:var(--papel-linea);color:var(--tinta);width:19px;height:19px;border-radius:50%;
+    cursor:pointer;font-weight:700;line-height:1;font-size:13px;transition:background .14s}
+  .name-chip button:hover{background:var(--rojo);color:#fff}
+  .opt-row{display:flex;align-items:center;gap:11px;margin:14px 0;font-weight:600;font-size:14px;color:var(--tinta)}
+  .switch{position:relative;width:44px;height:25px;flex:none}
+  .switch input{opacity:0;width:0;height:0}
+  .slider{position:absolute;inset:0;background:var(--papel-linea);border-radius:999px;transition:.2s;cursor:pointer}
+  .slider::before{content:"";position:absolute;width:19px;height:19px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+  .switch input:checked + .slider{background:var(--verde)}
+  .switch input:checked + .slider::before{transform:translateX(19px)}
+  .sortear-btn{width:100%;background:var(--rojo);color:#fff;border:none;border-radius:12px;
+    font-family:'Hanken Grotesk';font-weight:800;font-size:16px;letter-spacing:.02em;padding:15px;cursor:pointer;
+    box-shadow:var(--sombra-s);transition:background .15s,transform .1s}
+  .sortear-btn:hover{background:var(--rojo-hondo)}
+  .sortear-btn:active{transform:scale(.99)}
+  .sortear-btn:disabled{background:#c3bca9;cursor:not-allowed}
+  .winner-stage{position:relative;text-align:center;padding:20px 10px;min-height:20px}
+  .banner-win{display:inline-block;background:linear-gradient(160deg,var(--pino2),var(--pino));border:1px solid rgba(255,255,255,.14);border-radius:14px;
+    padding:16px 30px;box-shadow:var(--sombra)}
+  .banner-win .lab{font-family:'Hanken Grotesk';font-weight:700;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--amarillo)}
+  .banner-win .nm{font-family:'Fraunces';font-weight:600;font-size:34px;color:#FBF7EC;line-height:1.1;margin-top:4px;letter-spacing:-.02em}
+  .pop{animation:pop .5s ease both}
+  .historial{margin-top:16px;border-top:1px solid var(--papel-linea);padding-top:14px}
+  .historial h3{font-family:'Fraunces';font-size:16px;font-weight:600;margin-bottom:8px;color:var(--tinta)}
+  .historial ol{margin:0;padding-left:20px;color:var(--tinta);font-weight:600;font-size:14px}
+  .float-balloon{position:absolute;font-size:26px;bottom:0;animation:up 2.2s ease-in forwards;pointer-events:none}
+
+  /* ---------- TAB BAR ---------- */
+  nav.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:1200;background:rgba(251,247,236,.92);backdrop-filter:blur(12px);
+    border-top:1px solid var(--papel-linea);display:flex;padding:8px 4px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -6px 24px -12px rgba(30,40,34,.25)}
+  nav.tabbar button{flex:1;background:none;border:none;cursor:pointer;padding:6px 2px;display:flex;flex-direction:column;
+    align-items:center;gap:3px;font-family:'Hanken Grotesk';font-weight:600;font-size:11px;letter-spacing:.02em;color:var(--tinta-suave);position:relative;transition:color .15s}
+  nav.tabbar .ic{font-size:20px;line-height:1;transition:transform .18s;filter:grayscale(.25)}
+  nav.tabbar button.on{color:var(--rojo)}
+  nav.tabbar button.on .ic{transform:translateY(-2px) scale(1.12);filter:grayscale(0)}
+  nav.tabbar button.on::after{content:"";position:absolute;top:-8px;width:20px;height:2.5px;border-radius:2px;background:var(--rojo)}
+  footer{ text-align:center;font-size:12px;color:var(--tinta-suave);font-weight:500;padding:26px 16px 6px;line-height:1.7}
+  footer b{color:var(--tinta);font-weight:700;font-family:'Fraunces'}
+
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @keyframes pop{0%{transform:scale(.5) rotate(-2deg);opacity:0}60%{transform:scale(1.12) rotate(-2deg)}100%{transform:scale(1) rotate(-2deg);opacity:1}}
+  @keyframes up{to{transform:translateY(-260px) rotate(12deg);opacity:0}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .spin{display:inline-block;animation:spin 1s linear infinite}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+  :focus-visible{outline:3px solid var(--uva);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="aurora" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+  <div class="wrap">
+    <div class="hero-top">
+      <span class="kicker">Guía de viaje<span class="k-dot"></span>Asturias</span>
+      <span class="hero-yr">2026</span>
+    </div>
+    <h1>Descenso <em>del</em> Sella</h1>
+    <p class="lugar">El oriente asturiano de punta a punta: dónde ir, dónde comer y todo lo práctico para el fin de semana grande del río.</p>
+    <div class="fechas">
+      <span class="pill-fecha">📅 <b>22–26 julio</b></span>
+      <span class="pill-fecha" id="countdown">…</span>
+    </div>
+  </div>
+  <svg class="montes" viewBox="0 0 720 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 92 L70 54 L120 78 L180 40 L240 82 L300 34 L360 74 L420 46 L500 86 L560 58 L620 84 L680 60 L720 88 L720 120 L0 120 Z" fill="#284A3A" opacity=".55"/>
+    <path d="M0 104 L60 78 L130 100 L200 66 L270 98 L340 72 L410 102 L480 78 L560 104 L630 84 L700 106 L720 96 L720 120 L0 120 Z" fill="#233F31" opacity=".8"/>
+    <path d="M0 120 L0 110 L90 116 L200 104 L320 118 L440 106 L560 118 L680 108 L720 116 L720 120 Z" fill="#EFE8DA"/>
+  </svg>
+</header>
+
+<main class="wrap">
+
+  <!-- ================= EXPLORA ================= -->
+  <section class="tab on" id="tab-explora">
+    <div class="sec-head"><span class="eyebrow">nuestra ruta</span><h2>Qué ver y dónde comer</h2></div>
+    <p class="sec-sub">Los mejores rincones y sidrerías de la zona. Toca para llegar en un clic.</p>
+    <div class="filtros" id="f-tipo">
+      <span class="chip act" data-tipo="todo">🌍 Todo</span>
+      <span class="chip" data-tipo="ver">📸 Visitar</span>
+      <span class="chip" data-tipo="comer">🍽️ Comer</span>
+    </div>
+    <div class="filtros" id="f-pueblo">
+      <span class="chip act uva" data-pueblo="todos">Todos</span>
+      <span class="chip" data-pueblo="Ribadesella">Ribadesella</span>
+      <span class="chip" data-pueblo="Arriondas">Arriondas</span>
+      <span class="chip" data-pueblo="Cangas de Onís">Cangas de Onís</span>
+      <span class="chip" data-pueblo="Alrededores">Alrededores</span>
+    </div>
+    <input class="buscar" id="buscador" placeholder="🔎 Buscar (cachopo, playa, cueva…)">
+    <div id="map-sitios"></div>
+    <div class="mapleyenda">
+      <span><i style="background:var(--uva)"></i>Visitar</span>
+      <span><i style="background:var(--rojo)"></i>Comer</span>
+    </div>
+    <div class="grid" id="lista-explora"></div>
+  </section>
+
+  <!-- ================= GASOLINERAS ================= -->
+  <section class="tab" id="tab-gas">
+    <div class="sec-head"><span class="eyebrow">a repostar</span><h2>Gasolineras más baratas</h2></div>
+    <p class="sec-sub">Precios oficiales del Ministerio, en tiempo real, en 20 km alrededor del recorrido.</p>
+    <div class="fuel-tabs" id="fuel-tabs">
+      <span class="chip act verde" data-fuel="g95">Gasolina 95</span>
+      <span class="chip" data-fuel="diesel">Diésel</span>
+      <span class="chip" data-fuel="g98">Gasolina 98</span>
+      <span class="chip" data-fuel="glp">GLP</span>
+    </div>
+    <div id="map"></div>
+    <div class="leyenda">
+      <span><i style="background:#3aa655"></i>Más barata</span>
+      <span><i style="background:#f3b61f"></i>Media</span>
+      <span><i style="background:#e4572e"></i>Más cara</span>
+    </div>
+    <div class="estado" id="gas-estado"><span class="spin">⏳</span> Cargando precios…</div>
+    <div id="lista-gas"></div>
+  </section>
+
+  <!-- ================= TIEMPO + NOTICIAS ================= -->
+  <section class="tab" id="tab-clima">
+    <div class="sec-head"><span class="eyebrow">parte del día</span><h2>El tiempo</h2></div>
+    <div class="clima-toggle" id="clima-toggle">
+      <span class="chip act uva" data-loc="ribadesella">🏖️ Ribadesella</span>
+      <span class="chip" data-loc="arriondas">🛶 Arriondas</span>
+    </div>
+    <div class="clima-now" id="clima-now"><span class="spin">⏳</span> Cargando el tiempo…</div>
+    <h3 style="font-size:18px;margin:4px 2px 8px">Próximos días</h3>
+    <div class="forecast" id="forecast"></div>
+    <div class="dia-panel" id="dia-panel">
+      <div class="dia-panel-clip">
+        <div class="dia-panel-inner">
+          <div class="dph">
+            <h3 id="dia-panel-titulo"></h3>
+            <span class="rango" id="dia-panel-rango"></span>
+            <button class="cerrar" id="dia-panel-cerrar" aria-label="Cerrar">✕</button>
+          </div>
+          <div class="horas" id="dia-panel-horas"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-head" style="margin-top:26px"><span class="eyebrow">se comenta</span><h2>Noticias recientes</h2></div>
+    <p class="sec-sub">Lo último sobre el Descenso del Sella y Ribadesella.</p>
+    <div id="noticias"><div class="estado"><span class="spin">⏳</span> Buscando noticias…</div></div>
+  </section>
+
+  <!-- ================= SORTEO ================= -->
+  <section class="tab" id="tab-sorteo">
+    <div class="sec-head"><span class="eyebrow">¡suerte!</span><h2>Sorteo del grupo</h2></div>
+    <p class="sec-sub">Mete los nombres y que decidan los globos. Repite las veces que quieras.</p>
+    <div class="sorteo-box">
+      <div class="add-row">
+        <input id="name-input" placeholder="Nombre del aventurero…" autocomplete="off">
+        <button class="btn btn-p" id="add-name">Añadir</button>
+      </div>
+      <div class="names" id="names-list"></div>
+      <div class="opt-row">
+        <label class="switch"><input type="checkbox" id="opt-descartar"><span class="slider"></span></label>
+        Descartar al ganador automáticamente
+      </div>
+      <div class="winner-stage" id="winner-stage"></div>
+      <button class="sortear-btn" id="sortear">🎈 ¡Sortear!</button>
+      <div class="historial" id="historial" style="display:none">
+        <h3>Ganadores</h3><ol id="hist-list"></ol>
+        <button class="btn btn-s" id="reset-hist" style="margin-top:8px">Limpiar historial</button>
+      </div>
+    </div>
+  </section>
+
+  <footer><b>Descenso del Sella</b> · Guía de viaje del oriente de Asturias<br>Datos en directo: Ministerio (carburantes) · Open-Meteo (tiempo) · Google News · Cartografía © OpenStreetMap</footer>
+</main>
+
+<nav class="tabbar" id="tabbar">
+  <button class="on" data-tab="explora"><span class="ic">🗺️</span>Explora</button>
+  <button data-tab="gas"><span class="ic">⛽</span>Gasolina</button>
+  <button data-tab="clima"><span class="ic">🌤️</span>Tiempo</button>
+  <button data-tab="sorteo"><span class="ic">🎉</span>Sorteo</button>
+</nav>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ============ DATOS: sitios reales de la zona ============ */
+const LUGARES = [
+  // -------- VISITAR --------
+  {t:"ver",n:"Puente Romano de Cangas",pueblo:"Cangas de Onís",emoji:"🌉",cap:"la postal",stars:4.7,tags:["Cultura", "Icono"],d:"El puente \"romano\" (medieval) con la Cruz de la Victoria sobre el Sella. La postal de Asturias: mejor foto a primera hora, sin gente.",lat:43.3502,lon:-5.132,pid:"ChIJG2KTT-0hNg0RGjtCfuqx4M8",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjCjOq7HHYIYhw1xi6dYtiFoEXDlaL0eKbmLYm4FRupsDVuNmROB2_mdBJaLlfsZT_FGPCFP7wM0YUW6e3ExLTTkBFbvLIUAu7egAw5Lgr7D7x_fqzUWTvzclhrNjsNloP3Wn6FaFjllx7HTb1HE70qA=w640-h480"},
+  {t:"ver",n:"Santuario de Covadonga",pueblo:"Alrededores",emoji:"⛪",cap:"la Santina",stars:4.8,tags:["Cultura", "Naturaleza"],d:"Basílica rosa y Santa Cueva incrustadas en la montaña. Aparca detrás del museo y te ahorras escaleras. Abre 8:30–20:00.",lat:43.3075,lon:-5.0546,pid:"ChIJnVy6X1nfSQ0RdRv5xw2p4ow",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjBLrEDLGUexBGDRCnIPgFWlsOfcbSvS1uaI9fSK4eeXnCrOL18JzWXhIonIXvtmqb3C6MjZMXvuWRiHMwTnn_TLXirlbYNyX41e-8dKx_DMNv1bpc9nMYo-qmaSe9rn2m1WRkY00jeZK-ehMw=w640-h480"},
+  {t:"ver",n:"Lagos de Covadonga",pueblo:"Alrededores",emoji:"🏔️",cap:"Enol y Ercina",stars:4.8,tags:["Naturaleza", "Picos"],d:"Enol y Ercina, glaciares en pleno Picos. Del 22 al 26 jul el coche solo sube antes de las 8:00; después, bus obligatorio desde Covadonga. Ve al amanecer.",lat:43.2717,lon:-4.9959,pid:"",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjDFWgw-Wvw8VrbsTwLtGscZ2Sf1EaZ5x0sBMP2hml0IqLF3n7aMSc3CwGfMSyTWftcOa5D_Txj9IsVbXWFW78D7Tv6VyBo1Ykal_-mK-5qbS4hMOOTEl5uUU7UzLcf5FoeXn9-v4Shu3M8VMw4=w640-h480"},
+  {t:"ver",n:"Mirador de la Reina",pueblo:"Alrededores",emoji:"👀",cap:"vistas del macizo",stars:4.7,tags:["Mirador", "Aves"],d:"Parada obligada subiendo a los Lagos: vistas del macizo y observatorio de aves (buitres, águilas). Aprovecha la subida para parar aquí.",lat:43.2914,lon:-5.0079,pid:"ChIJ5wUdGC7ZSQ0RL1dsvY7Ypqs",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjBvRAX3CAaKOdwEGXiWkFdHASY9as2mnIAKwxXKZ4ASq4ddhlzy7LqL06Neto4e2OVfOdZ8Jcs_Cnx_AssQy5gXwbRYk1RFWyZb7xCL4eDH6SuDdVNyWaHCR_I1dAA3i-seWu4MpHY9RcCcXQ=w640-h480"},
+  {t:"ver",n:"Olla de San Vicente",pueblo:"Cangas de Onís",emoji:"💧",cap:"poza secreta",stars:4.7,tags:["Naturaleza", "Poco conocido"],d:"Poza turquesa de agua de deshielo escondida en el río Dobra. Senda corta pero muy resbaladiza: buen calzado. Parking limitadísimo (~15 coches), ve pronto. Casi nadie la conoce fuera de la zona.",lat:43.3071,lon:-5.13,pid:"ChIJbdNQnEMhNg0RDVwU4YqRsiA",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjDNjMlKY1XPoGoqdElzWQQCG7J9Thy8ZV79Mjd1v3_JYxUt2z1xbpFLZJnLBA8t5FrF3gBykpzYGpK4y5wIc9fpKSN0gkK5SEUBreQeuySU5141ZwNtTWsImuY2aiv3ae3bxEg4DnLdMrfcwc42zrJC=w640-h480"},
+  {t:"ver",n:"Mirador de Ordiales",pueblo:"Alrededores",emoji:"🦅",cap:"el secreto de Picos",stars:4.9,tags:["Mirador", "Ruta dura"],d:"El mirador secreto y más espectacular de Picos, pero se lo gana: ruta dura de 5-6 h ida y vuelta desde Pandecarmen. Tumba de Pidal al borde del abismo y rebecos casi seguros. Sal muy pronto: el acceso a Covadonga cierra sobre las 8:00 por cupo.",lat:43.2242,lon:-5.0121,pid:"ChIJiR5qrdbZSQ0RgTQbMg6oTnY",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjBP826Fd-wX4qM6od-r68UBCq9NO900jQRUSomdTrZykemudUPUyKCzhgSQ-XUK4VYGJprB0yt7rhMcGKX8endBL-j9B9FI7a__DpHVz9M_cQ-0-e4HDMgceYf9Gs9jSYfdtjU9_RdXu2jckjTmAKBWJg=w640-h480"},
+  {t:"ver",n:"Ruta del Cares",pueblo:"Alrededores",emoji:"🥾",cap:"garganta divina",stars:4.8,tags:["Senderismo", "Picos"],d:"La \"Garganta Divina\": 12 km tallados en la roca entre paredes vertiginosas. Empieza antes de las 8:00 para tenerla vacía. Lleva agua.",lat:43.2134,lon:-4.9056,pid:"ChIJswebvxrQSQ0ROFL8r9O_DzA",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjDoiDqOGRQHTU0-_Vmzwm7LzPz1vW6FH6A3TLxyeHBbFgl89YyaPCTRv9hViAUdo2-DlHbk4xFOJovuLGmn3gGe8_uVTPgl5yKP6jR4ryPqKUa2xD5BCz4WbTk0d5YcIcxQYLDI33k03srCog=w640-h480"},
+  {t:"ver",n:"Bulnes",pueblo:"Alrededores",emoji:"⛰️",cap:"pueblo sin coches",stars:4.6,tags:["Aldea", "Picos"],d:"Pueblo sin acceso en coche dentro del macizo. Subes andando desde Poncebos (~1 h de fuerte pendiente) o en funicular subterráneo (~22 €). Vistas al Naranjo de Bulnes.",lat:43.2381,lon:-4.8233,pid:"ChIJbT_L0-_FSQ0RSqm_ghDsAqc",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjAn3yrETBqp95EgHdmtmShthbrw7TnE25n458XvD9FPwVBswueZqStWPeUmNNSP-2L70wlyn-ggTzx_YKjM3uBL29Q3E6VaNL6X2v_Ucf3I_YI7PheFuR0AztuLmgDxbKmWefmmm7G7dY6Phjc=w640-h480"},
+  {t:"ver",n:"Mirador del Fitu",pueblo:"Alrededores",emoji:"🔭",cap:"mar + montaña",stars:4.7,tags:["Mirador", "Panorámica"],d:"Mar por un lado, Picos de Europa por el otro: la mejor panorámica de la comarca. Ve al atardecer. Carretera estrecha y sin bar arriba: lleva agua.",lat:43.4388,lon:-5.1925,pid:"ChIJTWkfZYYZNg0RUns7evz61-c",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjBXpjw76t5YDwBSIearie0TL7EodUUUP44z8dxda6WUrK3aP_PztLPhcnbFYyou-1E0nBmM4sOaxqzkfZvm4jT-qxbYlRxUPWj_JXZkPCcXJZm0YNYDg0jPzfuU5JOmQHdgiEgMwGpsJF3UTA=w640-h480"},
+  {t:"ver",n:"Salida del Descenso",pueblo:"Arriondas",emoji:"🛶",cap:"¡a remar!",stars:4.8,tags:["Evento", "Río Sella"],d:"El punto de salida en Arriondas, junto al puente. El primer sábado de agosto es una locura, pero el ambiente piraguero se respira todo el verano.",lat:43.3888,lon:-5.1836,pid:"",img:""},
+  {t:"ver",n:"Ribadesella",pueblo:"Ribadesella",emoji:"🏖️",cap:"la meta",stars:4.7,tags:["Playa", "Villa"],d:"La meta del descenso. Playa de Santa Marina, paseo marítimo y casas de indianos. La tarde de la bajada, ambientazo de otro planeta.",lat:43.4631,lon:-5.0561,pid:"ChIJ97sWpu0dNg0RqrSuHFbtvkA",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjBEyrcwmUPkX0pO4cmYzTTMTJGX1Dju_YekPxIF4n7GqgkT0kKEOOfEMPPLNw4_yILwpkHUuFykx_PxIX7kYodCvBCAouT-z0r3YP5dOk6pNmqCS9hDOgAA2dQKKAWAcQTmXwklLQoE4UEc=w640-h480"},
+  {t:"ver",n:"Acantilados del Infierno",pueblo:"Ribadesella",emoji:"🌊",cap:"ruta salvaje",stars:4.6,tags:["Naturaleza", "Senderismo"],d:"Ruta costera entre arcos de roca y mar abierto. Empieza suave y se pone salvaje. Lleva agua y calzado que agarre.",lat:43.4608,lon:-5.0286,pid:"ChIJNbYhESXiSQ0RIt6DawLd280",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjByPs3pFwUXhy4q2o3wjobN9CQIc33X950mSc2QfeI8IHoiL-E4cbijhjOlWkspPppMrbzq5sAqYwb7pPhevTck2w0Er63MC2KN-7WLf17KZvR7kVIs5TXR0o6iuGZ705Pj0X_tXL8UIi4-Ozh4NIOB=w640-h480"},
+  {t:"ver",n:"Cueva de Tito Bustillo",pueblo:"Ribadesella",emoji:"🖼️",cap:"14.000 años",stars:4.6,tags:["Cultura", "UNESCO"],d:"Arte rupestre Patrimonio de la Humanidad. Entra poca gente al día y vuela: reserva con antelación. Cerrado lun y mar.",lat:43.4612,lon:-5.068,pid:"ChIJwT33pfEdNg0RcHiGMW9T1z0",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjC7j8XDhb1tKH7G9L4sYvdwjSsC5aXAVZ6mJix62wJZs7q1gClro-bQAaaLkQl5MkxofIQer7dVk5US_nd1VbWiJgrGC7aZBv4qGERLHdMBJRu_um5t3JPSXAKG4qMBVBgRp9HUQKGEb9XS=w640-h480"},
+  {t:"ver",n:"La Cuevona de Cuevas",pueblo:"Ribadesella",emoji:"🕳️",cap:"pueblo tras la cueva",stars:4.7,tags:["Naturaleza", "Curioso"],d:"Túnel natural de 300 m con estalactitas: la única entrada al pueblín de Cuevas del Agua. Se cruza a pie. Alucinante y gratis.",lat:43.4366,lon:-5.0736,pid:"ChIJ4-a_FgAfNg0RXP02fq7zoMc",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjASONGgq9n7wHwJ69UiRYTNyEcIwhIcFsXJhIGImqWrjaK6yDXWYFwjB3ZMmKMP8mOP2Cb995bG4yyyPx5HC8uTmFSLUDItP28V0Us4RkXinD4EcZul7Rt9FjpExbaiLs36U0kN1y_5TXaBb_M=w640-h480"},
+  {t:"ver",n:"Escalera de Colores",pueblo:"Ribadesella",emoji:"🌈",cap:"foto rápida",stars:4.1,tags:["Curioso", "Gratis"],d:"Escalinata pintada en el casco antiguo. Míralas desde abajo para pillar el degradado. Foto y a seguir.",lat:43.4609,lon:-5.0597,pid:"ChIJGy1B9ZzjSQ0RNSzG2r9k_ho",img:""},
+  {t:"ver",n:"Playa de Vega",pueblo:"Ribadesella",emoji:"🏄",cap:"surf y acantilados",stars:4.5,tags:["Playa", "Surf"],d:"Arenal enorme entre acantilados, ideal para surf y para pasear. Tiene parking, duchas y chiringuitos. Menos masificada que Santa Marina.",lat:43.4787,lon:-5.1443,pid:"ChIJ083C24YbNg0RcPUmVBm_Mpo",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjBpPCXjov6-2o8aSmYmgQcl-eUjqa5eiJoNSR4zYJijFV-wkPl0USbjonmJtGubZ5ZClR0KpRq5ihR2N2OQ_QUSJ-UMAvPn9T3VbScoOnTvqi9NX-Zk7fFQ_FyDWILhQPJEQEXqgIDUOaCdpQ=w640-h480"},
+  {t:"ver",n:"Bufones de Pría",pueblo:"Alrededores",emoji:"💦",cap:"rugen y escupen",stars:4.6,tags:["Naturaleza", "Costa"],d:"Chimeneas naturales que rugen y escupen agua con marea alta y mar de fondo. Con mar en calma no \"soplan\": mira el estado de la mar antes. Aparca en el pueblo y camina ~1 km. Ojo al borde.",lat:43.4584,lon:-4.9798,pid:"ChIJ_08ma9yXSQ0RDO23y4vYPS0",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjC3yZlOFxUrOvVS4Kv-pj3kg5EYQiqMsH_Bej2tjh5JB5_9hLKnE4laf1NmFaz229hnVe37ePYZwbaGSlV_0764s5GxQIcGXE8r_81CdR-Vz7uNOo1XgicRcHPs2VzRGF4ml8JDj3w-YvFb5A=w640-h480"},
+  {t:"ver",n:"Playa de Gulpiyuri",pueblo:"Alrededores",emoji:"🐚",cap:"playa sin mar",stars:4.2,tags:["Playa", "Único"],d:"La playa más pequeña del mundo, tierra adentro: un sumidero al que llega el mar por la roca. Curiosísima. Ve pronto y aparca donde indican para evitar multas.",lat:43.4475,lon:-4.886,pid:"ChIJfX3KjqjoSQ0RybYF9mQpqmg",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjBczM8Zzyf0Ra2mYtMXmM4HabPpJZtx22PsnJ5Dhn13mgyPIU3CA-F-FQuz11GkF_ro13sPeli6HPjNAHkuOnu-3eI07fctcIxvX5bvW9LTtTFUU24MlRruGqGH5sasrSjiorZ-cHOj91rUHw=w640-h480"},
+  {t:"ver",n:"Playa de Torimbia",pueblo:"Alrededores",emoji:"🏝️",cap:"salvaje",stars:4.7,tags:["Playa", "Naturista"],d:"Concha virgen en media luna, sin urbanizar. Se baja andando ~15 min (la vuelta cuesta). Es playa nudista. De las más bonitas de Asturias.",lat:43.4421,lon:-4.8517,pid:"ChIJUXVqRd_oSQ0REuaqMMqwEmY",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjCJ54m1qLbC60c7-fqXg1rLkYuCQQIerU4Qw0ArvHyEzcrrdrSbNj3Z30HcCpySztyiFFxAcQh-WDcPddisx0-C2tdYdHTsACwvcTs67IO2eiDdIF-y9i3DcdYJUm1MvmRtI2KrGPjp_0X1S2c=w640-h480"},
+  {t:"ver",n:"Cubos de la Memoria",pueblo:"Alrededores",emoji:"🎨",cap:"puerto pintado",stars:4.1,tags:["Arte", "Llanes"],d:"Los bloques del puerto de Llanes pintados por Ibarrola. Paseo colorido con el casco viejo al lado. Combínalo con tapear en Llanes.",lat:43.4214,lon:-4.7475,pid:"ChIJt1syzd_qSQ0RF66l8_sHsO8",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjBOH6Jz2depTY0ZjIVyhSe8EmcnpmV3XrUM_m8B5XzfclGnO3GU3vpsELRqlF7IGAbCjVAAQW65YydJ36SVG545orLsiKGveqOm5kViHtiwXZkyTkZ-C0YZ1MET8PACT7Zf3Kr9KDC177wfbvY=w640-h480"},
+  // -------- COMER --------
+  {t:"comer",n:"El Molín de la Pedrera",pueblo:"Cangas de Onís",emoji:"🍽️",cap:"tradición top",stars:4.7,precio:2,tags:["Tradicional", "Reinventada"],d:"El más redondo de Cangas: tradición asturiana reinventada (fabada, quesos, cabrito, tarta de queso densa de las de recordar). Reserva sí o sí. Cierra miércoles.",lat:43.3516,lon:-5.1299,pid:"ChIJYaz1--whNg0RggpJMzHUewE",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjAQM44gGnLvnW9e8st50cK-4NBENSmYC0HEeR3vtCUEiBt0HeY0Dp2VaetiBLBFUOjnAmzvaPjIs5jwrIYZZ7moKI6qVhvnZ4AOU6KPPWWtmxnVqIN1BbjhrD2xBDoPtoCw-N0UMTeRMaR81A=w640-h480"},
+  {t:"comer",n:"Sidrería El Polesu",pueblo:"Cangas de Onís",emoji:"🍏",cap:"taberna auténtica",stars:4.4,precio:1,tags:["Sidrería", "Tradicional"],d:"Taberna auténtica entre barricas, con escanciado sobre la cabeza. Fabada, cachopo, chorizos y boronchu. Cierra lunes.",lat:43.3513,lon:-5.1275,pid:"ChIJX-dolewhNg0RhKLP3js7754",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjDTxK0UPcJrw4GR0C6YCnTc7S4UWRVdv4wZUOqruXLHhBP8Zhl1-h7CqZRlpV38YZ-2Nh3GMmMBF4lg4qgtjV5113GXhLDD2mQrOAdZxqAwdBicM7W3REjetC_QZ29nEzT9CcFIU5m63-zqA0c=w640-h480"},
+  {t:"comer",n:"Bar Los Robles",pueblo:"Cangas de Onís",emoji:"🍺",cap:"la sidra top",stars:4.6,precio:1,tags:["Sidrería", "Familiar"],d:"Familiar y muy asturiano, fama de la mejor sidra escanciada y un chorizo a la sidra de referencia. Menú del día muy bien. Cierra lunes.",lat:43.35,lon:-5.1287,pid:"ChIJFehBky8hNg0RF_7GVXYuJck",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjC7a6yDPk5zWbgbYDPHyBcug6LlTpVeMR4DjaFmn8kWonidNgGGkayt2ebYzXz3wH4psYpX2h_Sz0E8YfIkoZYwhDaZjddLtn0lEje5kxFMC9H3wSeRT4ZD2j1Tk4kNcNsztrxynCol5A6q1nQ=w640-h480"},
+  {t:"comer",n:"La Joguera",pueblo:"Cangas de Onís",emoji:"🥩",cap:"cachopo de premio",stars:4.7,precio:1,tags:["Cachopo", "Top"],d:"Su cachopo estuvo nominado a mejor de Asturias; pide también las patatas 3 salsas. Un cachopo da para dos. Cierra mié y jue.",lat:43.3515,lon:-5.1281,pid:"ChIJtzKwRc4hNg0RLWM3eLTPr5w",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjBRoPtnWSDk0kTnHfAHc3yrOo-9HZN_eEXtT0ADFYfsAsvUdEQ-dRps0QShXBlkm2lHkpsldmHnLhuQQZe1bFP4Bf8r7IGG_5e5HSOqHukcH2MebMXRsOo1jVVZVyQKKsfCRPb0wkvVg8VtsQ=w640-h480"},
+  {t:"comer",n:"La Madreñeria",pueblo:"Cangas de Onís",emoji:"🔥",cap:"parrilla top",stars:4.5,precio:1,tags:["Parrilla", "Menú día"],d:"Parrilla de brasa: chuletón, costillas, ibérico. Menú del día / parrillada con bebida y postre muy competitivo. Cierra martes.",lat:43.3496,lon:-5.1293,pid:"ChIJu-hWLZMhNg0R9YZKO1GqKwQ",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjDOvzZgChQSzWNU2VWBmLqBtU4xuVwwxiTjpg0Y1cXQRk_Vp5gDw9ujIy4EEI3VgZacxsr8N3Czr_Ye9rnqMC7LwxRWySvYObqR-BLXDSVphvvEPH2nk0WrorCdoaAW2S7JcGeV4twQNfKn=w640-h480"},
+  {t:"comer",n:"El Horru Encantau",pueblo:"Cangas de Onís",emoji:"🧀",cap:"abre siempre",stars:4.5,precio:2,tags:["Carne", "Quesos"],d:"Carnes premium (buey de El Cuco), cabrito y tablas de quesos, ambiente animado. Abre todos los días: útil para el día que cierren los demás.",lat:43.3498,lon:-5.1309,pid:"ChIJmxB61gMhNg0R_Lfnh8BgAFA",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjAztke50F-9egxmBRslkn1XFmOZ3m94I3rX5qhQnTZjM_KSUxHvoxgrfUv3PCz0L1_SgZPDzyFc0wp0WdiVqWCROGUvCiDoq7jnb4o_njugQkyev21e1Mm85UWIYz4dOmHAmKozGhRNEIF4lQ=w640-h480"},
+  {t:"comer",n:"La Sifonería",pueblo:"Cangas de Onís",emoji:"🍷",cap:"para compartir",stars:4.7,precio:2,tags:["Raciones", "Vermú"],d:"Raciones para compartir, fabada y el mejor vermú del pueblo, entre sifones antiguos. Terraza grande. Reserva, que se llena. Cierra martes.",lat:43.35,lon:-5.1297,pid:"ChIJn2-rM5MhNg0RmRbh5fUL2Gw",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjCqgJ6QskVmzYcgqK_xozdgpgM54h3Ly-EcxMDvL0_Tq1dg3-1YSI2zOmlR7tAWwtP3j-5BXAfkw_NWs7uAlQyR1crAG_q0LgwlJja-rFVF5vsQf2oTx4KQTQravTgs3i0yszPmcReYGTdNQw=w640-h480"},
+  {t:"comer",n:"Taberna Asturcelta",pueblo:"Cangas de Onís",emoji:"🐙",cap:"nota altísima",stars:4.7,precio:2,tags:["Tradicional", "Top"],d:"Tradicional bordada: guisantes de la casa, pulpo, fabada. Nota altísima y trato de 10. Cierra miércoles.",lat:43.3513,lon:-5.1297,pid:"ChIJ8Y0zkMYhNg0RS6TxcPBkNYs",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjAgx2n2v9D_pF5XNP1Ut_BjoJVtSKMo1EdKSZew9uGzM0yFC1sO0Rl2LLY8K04G2AJq7x3WbTVZGjyYh6tjs0BJPmej32wrJtDx1T2aDr6pNCdt7seYo2n98tr_rbyE0aUggdP6eDiynYEdDbj8TGZ-Lw=w640-h480"},
+  {t:"comer",n:"Sidrería La Caldera",pueblo:"Cangas de Onís",emoji:"🫕",cap:"6 mesas",stars:4.7,precio:1,tags:["Sidrería", "Familiar"],d:"Solo 6 mesas, familiar, Pepe te aconseja. Cachopín y tarta de queso caseros. Ven pronto y apúntate.",lat:43.3507,lon:-5.1261,pid:"ChIJX5wXOeshNg0R23Z4MbBXfOE",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjCB7RDUA-87_Kw0Rmbho_eoCjBG2YkIYvJst7Sy3EjSLUTu_MDhZsmvE0jRofE2lYDrn9jNSa0PtjrvGQ8ydjGQcRcCnWINugukGh8OZ7QVCyrS6kzTNQx-sHpLQlkLJGTeV646a1iUvc1tog=w640-h480"},
+  {t:"comer",n:"Casa Marcial",pueblo:"Arriondas",emoji:"🌟",cap:"3 estrellas",stars:4.7,precio:4,tags:["Alta cocina", "Michelin"],d:"La joya de Nacho Manzano en la aldea de La Salgar: 3 estrellas Michelin. Degustación de nivel mundial. Reserva con mucha antelación. Cerrado lun y mar.",lat:43.4183,lon:-5.1931,pid:"ChIJefNOj6QZNg0RLQfBY8NJwn4",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjA8B_zx0Jd-_NfRAnLbN11DhhnfnaEcUJoTdcZSFscZ4KAXv8bypd114qXBYgpsJk1OJNCB6L9yM9ApZ_Lu-7UsEPVIq3oQ4K04cNeU5vjeWDliuPUpGMuqnn9hTddjDuarOkiFhNjy-yrV3A=w640-h480"},
+  {t:"comer",n:"El Corral del Indianu",pueblo:"Arriondas",emoji:"⭐",cap:"homenaje",stars:4.7,precio:3,tags:["Alta cocina", "Michelin"],d:"Alta cocina asturiana con estrella. Menú creativo y colorista. Reserva sí o sí. Cerrado lunes.",lat:43.3903,lon:-5.1844,pid:"ChIJY0Fh_PUYNg0R62nRJ0raHdU",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjC9hkdPBDIGRQz1TrJDnY_x3S5mcyA8Rnr0fNEBcvcWAAi2eLgtk0mBqB81Td8toULSfe7zQSk__NRnQNuPIoTfBdveGluiosKERsvBYhRv7nvCURTz0EntB-0LQSTwMctpERoeKj5mnKp6b3fRPU_h=w640-h480"},
+  {t:"comer",n:"Sidrería La Llera",pueblo:"Arriondas",emoji:"🥩",cap:"cachopazo",stars:4.7,precio:2,tags:["Sidrería", "Cachopo"],d:"Cachopos enormes y sidra bien escanciada. En verano reserva. Pídelo bien hecho: lo sirven jugoso.",lat:43.3894,lon:-5.1858,pid:"ChIJBQkLmDkZNg0RxiL4wtiCx2s",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjBmjmhCmGWklc_5YpAeA6Jkxfdka09JMQBR05lVB8XsWcXrTvR8QMtk2zE-Zq-1LDMQmFRGWj1SnbMjok-BGyOXVbjmDdM4bbjCoCYlC9fEZOnugkAdp7fj6yY2mKpoRcRjUyzu0Spc8Or4_A=w640-h480"},
+  {t:"comer",n:"La Parrilla del Sella",pueblo:"Arriondas",emoji:"🔥",cap:"a la brasa",stars:4.6,precio:2,tags:["Parrilla", "Tapa gratis"],d:"Brasa, carnes de calidad y tapa gratis con la bebida. De la mejor relación calidad-precio de Arriondas.",lat:43.3903,lon:-5.1852,pid:"ChIJ08xi71UZNg0Rwq3LlhFCPzk",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjDiUPp9dgYWzA2BBCcv7FZnb39pzxYQz-NQHd1pqM47Dn4JoCtMA9BMDjTgsUBWkDFj01oL2Ab6zwIF2-LvApsHJqyUOXFJNd6hJEiI2OxrKocg_pZjePwGYva6HYhG0Fp9kjpWd3j_ECqzBdmfTPvqrQ=w640-h480"},
+  {t:"comer",n:"El Rincón del Castañu",pueblo:"Arriondas",emoji:"🍺",cap:"de las de siempre",stars:4.2,precio:1,tags:["Sidrería", "Barato"],d:"Sidrería clásica. Raciones descomunales y precio majo. No pidas de más, que no cabe.",lat:43.3894,lon:-5.1862,pid:"ChIJXWeyQF8YNg0RsVE69kDFqA4",img:""},
+  {t:"comer",n:"Taberna El Camperu",pueblo:"Arriondas",emoji:"🍔",cap:"sin cachopo",stars:4.6,precio:1,tags:["Casual", "Veggie"],d:"El oasis para quien no quiere cachopo: burgers (también veganas) caseras y buen rollo. Porciones generosas.",lat:43.3908,lon:-5.1858,pid:"ChIJC4TMtVgYNg0RR7_rBb3ykEs",img:""},
+  {t:"comer",n:"Restaurante Arbidel",pueblo:"Ribadesella",emoji:"✨",cap:"estrella",stars:4.4,precio:3,tags:["Alta cocina", "Michelin"],d:"Estrella Michelin en una callejuela del casco viejo. Cocina asturiana contemporánea de Jaime Uz con producto del Cantábrico. Reserva.",lat:43.4613,lon:-5.0598,pid:"ChIJ6eZh1QniSQ0RacY23U2An9I",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjDRppil1ZI1rLG7RZTT4_W8wTsl-kbSEaiK7Kap5l_H7eqA5CNlpJedVoprcmDRPuiZx9j5vgwdNgz7uduYZ37NBsEWqdOVTMLrWLz2mNzdaMrd21rnK4sILhdu1W27zSj7TmKvgmVViazm=w640-h480"},
+  {t:"comer",n:"Sidrería El Tarteru",pueblo:"Ribadesella",emoji:"🍏",cap:"sin reservas",stars:4.5,precio:1,tags:["Sidrería", "Clásico"],d:"Clásico de Ribadesella. Sin reservas, sistema de lista: llega a las 13:00 o toca esperar. Cachopo para compartir. Cierra lun y mar.",lat:43.4636,lon:-5.0577,pid:"ChIJtTGe7wniSQ0R2cJ7TIxCjc8",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjAeT1AF9hVChaTPTbWGaPSCvDPXS1dz5DxjnjmkH1A_RMNBNXb052UTdylOgnPdpkl-FENvLVjgrvFr4v44TV0Np1P5PPFi7Acmi-Zoul9YWxRO-VY0ThCdv9UgQkOYqUj-3DDCL0kenJpYcw=w640-h480"},
+  {t:"comer",n:"Sidrería Carroceu",pueblo:"Ribadesella",emoji:"🦑",cap:"vistas a la ría",stars:4.3,precio:2,tags:["Marisco", "Sidrería"],d:"Marisco fresco y sidra en el paseo del puerto. Sin reservas, suele haber cola. Buenas vistas a la ría. Cierra mié y jue.",lat:43.4624,lon:-5.0595,pid:"ChIJBexl5QniSQ0Rxe051NGE0Gw",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjCI9SYTiiSwxW6sxaf4EUqgCiKxw12yQTp9Y51BxpEJVUVw5XqCM-0YC6SRzqTUhbFpEyJhIN4YTnEwSJpLL_xkQR1BPML5agc6OFzdWeO1kBlbEXRFsVLSUa5yu5WLQcFrlkB_ThqMzdspiA=w640-h480"},
+  {t:"comer",n:"Rompeolas Sidrería-Grill",pueblo:"Ribadesella",emoji:"🍖",cap:"raciones bestia",stars:4.2,precio:2,tags:["Parrilla", "Sidrería"],d:"Parrilla y sidrería con raciones bestiales. Costillas y verduras a la brasa que salen muy bien de precio.",lat:43.4628,lon:-5.0571,pid:"ChIJP5-5G6zjSQ0R66qkKb984Es",img:""},
+  {t:"comer",n:"Güeyu Mar",pueblo:"Ribadesella",emoji:"🐠",cap:"pescado a la brasa",stars:4.2,precio:3,tags:["Pescado", "Brasa"],d:"En Playa de Vega, templo del pescado a la parrilla: su pez rey a la brasa es legendario. Caro pero irrepetible. Solo mediodía; cierra lunes. Reserva.",lat:43.4793,lon:-5.1341,pid:"ChIJ0dLBWGQcNg0RKaS5GGIlTbc",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjA1qPeOj-6fl1Z41XEzw7EQ09aEgICBoGWSPXcn11dADB3-J_j97zzKV1VZygvvBFL7ytb9waX82_qvfV7i70ak2GCUVMP5Dp5RlZ2cClYGyrtYYetTKs9CJDt30fh-7LMWkuhfkntvqMQ1=w640-h480"},
+  {t:"comer",n:"D'Asturianu",pueblo:"Ribadesella",emoji:"🐟",cap:"cena tranquila",stars:4.0,precio:2,tags:["Asturiano", "Mar"],d:"Cocina asturiana en el centro, para cenas más tranquilas. Buen trato y producto de mar.",lat:43.464,lon:-5.0576,pid:"ChIJ0dZBJjjjSQ0RoImYsa9FufE",img:""},
+];
+
+LUGARES.forEach((l,i)=>l._id=i);   // id estable para enlazar tarjeta ⇄ mapa
+
+/* ============ ENLACE tarjeta ⇄ marcador del mapa ============ */
+let SITIO_MARKERS={};
+function flash(el,ms){ if(!el)return; el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); setTimeout(()=>el.classList.remove('flash'),ms||1800); }
+function gotoMap(id){                                   // tarjeta → mapa (destaca el sitio)
+  const l=LUGARES.find(x=>x._id===id); if(!l)return;
+  try{initMapSitios();}catch(e){}
+  document.getElementById('map-sitios').scrollIntoView({behavior:'smooth',block:'center'});
+  setTimeout(()=>{
+    if(mapSitios) mapSitios.invalidateSize();
+    const m=SITIO_MARKERS[id];
+    if(m&&mapSitios){
+      mapSitios.setView([l.lat,l.lon],14,{animate:true});
+      m.openPopup();
+      flash(m._icon&&m._icon.querySelector('.mk-sitio'),1400);
+    }
+  },420);
+}
+function gotoCard(id){                                  // marcador → tarjeta de la lista
+  if(mapSitios) mapSitios.closePopup();
+  const card=document.getElementById('sitio-'+id); if(!card)return;
+  card.scrollIntoView({behavior:'smooth',block:'center'});
+  flash(card,1800);
+}
+window.gotoMap=gotoMap; window.gotoCard=gotoCard;
+
+/* ============ UTIL: fetch resistente (varios proxys) ============ */
+const IS_FILE = location.protocol==='file:';
+function avisoEntorno(){
+  const caja=t=>'<div style="background:#fff6ee;border:2px solid var(--rojo);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-weight:800;color:var(--rojo-hondo);font-size:13px">'+t+'</div>';
+  if(IS_FILE) return caja('📂 Estás abriendo el archivo con doble clic (file://). El navegador bloquea los datos en vivo así. Súbelo a GitHub&nbsp;Pages / Supabase, o ábrelo con un servidor local (p. ej. <code>python3 -m http.server</code>).');
+  return caja('📡 Este entorno está bloqueando las conexiones a internet (la vista previa del chat lo hace). En la web ya publicada en GitHub&nbsp;Pages / Supabase, o en tu navegador normal, cargará sin problema. Pulsa 🔄 Reintentar cuando la abras allí.');
+}
+async function grab(url){
+  const pasos=[
+    u=>u,                                                              // directo (funciona con Open-Meteo)
+    u=>'https://api.codetabs.com/v1/proxy/?quest='+encodeURIComponent(u),
+    u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u),
+    u=>'https://corsproxy.io/?url='+encodeURIComponent(u),
+  ];
+  let err;
+  for(const p of pasos){
+    try{
+      const r=await fetch(p(url));
+      if(!r.ok){err=new Error('HTTP '+r.status);continue;}
+      const t=await r.text();
+      if(t&&t.length>50) return t;
+    }catch(e){err=e;}
+  }
+  try{ // último recurso: allorigins envuelto en JSON
+    const r=await fetch('https://api.allorigins.win/get?url='+encodeURIComponent(url));
+    const j=await r.json();
+    if(j&&j.contents&&j.contents.length>50) return j.contents;
+  }catch(e){err=e;}
+  throw err||new Error('sin conexión');
+}
+
+/* ============ NAVEGACIÓN TABS ============ */
+const tabbar=document.getElementById('tabbar');
+let mapReady=false, climaLoaded=false, noticiasLoaded=false, gasLoaded=false;
+tabbar.addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  const tab=b.dataset.tab;
+  document.querySelectorAll('nav.tabbar button').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('section.tab').forEach(s=>s.classList.remove('on'));
+  document.getElementById('tab-'+tab).classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(tab==='gas'){ try{initMap();}catch(e){console.warn('Leaflet no cargó:',e);} if(!gasLoaded) cargarGasolineras(); }
+  if(tab==='explora' && mapSitios){ setTimeout(()=>mapSitios.invalidateSize(),150); }
+  if(tab==='clima'){ if(!climaLoaded){cargarClima(CLIMA_LOC);} if(!noticiasLoaded){cargarNoticias();} }
+});
+
+/* ============ COUNTDOWN ============ */
+(function(){
+  const ini=new Date('2026-07-22T00:00:00');
+  const hoy=new Date();
+  const dias=Math.ceil((ini-hoy)/86400000);
+  const el=document.getElementById('countdown');
+  if(dias>1) el.innerHTML='⏳ faltan <b>'+dias+'</b> días';
+  else if(dias===1) el.innerHTML='⏳ ¡mañana!';
+  else if(dias<=0 && dias>-5) el.innerHTML='🛶 ¡a remar!';
+  else el.innerHTML='🎈 nos vemos el próximo';
+})();
+
+/* ============ EXPLORA ============ */
+const mapsLink=l=> l.pid
+  ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l.n+' '+l.pueblo)}&query_place_id=${l.pid}`
+  : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l.n+' '+l.pueblo+' Asturias')}`;
+const dirLink=l=> `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(l.n+' '+l.pueblo)}${l.pid?'&destination_place_id='+l.pid:''}`;
+const eur=n=>'€'.repeat(n||1);
+let fTipo='todo', fPueblo='todos', fTexto='';
+
+/* --- Fotos reales del sitio (Google Places) con respaldo al icono --- */
+function imgErr(img){
+  const f=img.closest('.foto'); if(!f) return;
+  const em=img.dataset.emoji||'📍';
+  f.classList.remove('has-img');
+  const d=document.createElement('div'); d.className='emoji'; d.textContent=em;
+  img.replaceWith(d);
+}
+function fotoHTML(l){
+  if(l.img){
+    return `<img src="${l.img}" alt="${l.n}" data-emoji="${l.emoji}" loading="lazy" decoding="async" onerror="imgErr(this)">`;
+  }
+  return `<div class="emoji">${l.emoji}</div>`;
+}
+/* --- Mapa de sitios (Leaflet), sincronizado con los filtros --- */
+let mapSitios, sitiosLayer, mapSitiosReady=false;
+function initMapSitios(){
+  if(mapSitiosReady) return; mapSitiosReady=true;
+  mapSitios=L.map('map-sitios',{scrollWheelZoom:false}).setView([43.36,-5.05],10);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(mapSitios);
+  sitiosLayer=L.layerGroup().addTo(mapSitios);
+  setTimeout(()=>mapSitios.invalidateSize(),200);
+}
+function renderMapaSitios(res){
+  if(!mapSitiosReady){ try{initMapSitios();}catch(e){console.warn('Leaflet no cargó:',e);return;} }
+  if(!sitiosLayer) return;
+  sitiosLayer.clearLayers();
+  SITIO_MARKERS={};
+  const pts=[];
+  res.forEach(l=>{
+    if(typeof l.lat!=='number'||typeof l.lon!=='number') return;
+    const icon=L.divIcon({className:'',html:`<div class="mk-sitio ${l.t}"><span>${l.emoji}</span></div>`,iconSize:[30,30],iconAnchor:[15,30],popupAnchor:[0,-28]});
+    const pop=`<div class="pop-sitio"><b>${l.n}</b><div class="ps-meta">★ ${l.stars.toFixed(1)} · 📍 ${l.pueblo}${l.precio?' · '+eur(l.precio):''}</div><button type="button" class="pop-info" onclick="gotoCard(${l._id})">ℹ️ Info</button></div>`;
+    const m=L.marker([l.lat,l.lon],{icon}).addTo(sitiosLayer).bindPopup(pop);
+    SITIO_MARKERS[l._id]=m;
+    pts.push([l.lat,l.lon]);
+  });
+  if(pts.length) mapSitios.fitBounds(pts,{padding:[34,34],maxZoom:13});
+}
+function renderExplora(){
+  const cont=document.getElementById('lista-explora');
+  const res=LUGARES.filter(l=>{
+    if(fTipo!=='todo' && l.t!==fTipo) return false;
+    if(fPueblo!=='todos' && l.pueblo!==fPueblo) return false;
+    if(fTexto){
+      const hay=(l.n+' '+l.d+' '+l.tags.join(' ')+' '+l.pueblo).toLowerCase();
+      if(!hay.includes(fTexto)) return false;
+    }
+    return true;
+  });
+  renderMapaSitios(res);
+  if(!res.length){cont.innerHTML='<p class="empty">🧭 Nada por aquí… prueba otro filtro.</p>';return;}
+  cont.innerHTML=res.map(l=>`
+    <article class="card" id="sitio-${l._id}">
+      <div class="foto${l.img?' has-img':''}">
+        ${fotoHTML(l)}
+        <div class="cap">${l.cap}</div>
+      </div>
+      <h3>${l.n}</h3>
+      <div class="meta">
+        <span class="stars">★ ${l.stars.toFixed(1)}</span>
+        <span>· 📍 ${l.pueblo}</span>
+        ${l.precio?`<span>· ${eur(l.precio)}</span>`:''}
+        ${l.tags.map(t=>`<span class="tag ${l.t==='comer'?'comer':''}">${t}</span>`).join('')}
+      </div>
+      <p class="desc">${l.d}</p>
+      <div class="btns">
+        <button type="button" class="btn btn-p" onclick="gotoMap(${l._id})">📍 Ubicación</button>
+        <a class="btn btn-s" target="_blank" rel="noopener" href="${mapsLink(l)}">🗺️ Ver en Maps</a>
+      </div>
+    </article>`).join('');
+}
+document.getElementById('f-tipo').addEventListener('click',e=>{
+  const c=e.target.closest('.chip'); if(!c)return;
+  document.querySelectorAll('#f-tipo .chip').forEach(x=>x.classList.toggle('act',x===c));
+  fTipo=c.dataset.tipo; renderExplora();
+});
+document.getElementById('f-pueblo').addEventListener('click',e=>{
+  const c=e.target.closest('.chip'); if(!c)return;
+  document.querySelectorAll('#f-pueblo .chip').forEach(x=>x.classList.toggle('act',x===c));
+  fPueblo=c.dataset.pueblo; renderExplora();
+});
+document.getElementById('buscador').addEventListener('input',e=>{fTexto=e.target.value.toLowerCase().trim();renderExplora();});
+renderExplora();
+
+/* ============ GASOLINERAS ============ */
+const CENTROS=[{n:'Arriondas',lat:43.3897,lon:-5.1836},{n:'Ribadesella',lat:43.4623,lon:-5.0576},{n:'Cangas de Onís',lat:43.3502,lon:-5.1320}];
+const RADIO_KM=20;
+let map, gasLayer, ESTACIONES=[], FUEL='g95', fechaMinetur='';
+const FUEL_KEYS={g95:'Precio Gasolina 95 E5',g98:'Precio Gasolina 98 E5',diesel:'Precio Gasoleo A',glp:'Precio Gases licuados del petróleo (GLP)'};
+const FUEL_NOM={g95:'Gasolina 95',g98:'Gasolina 98',diesel:'Diésel',glp:'GLP'};
+
+function initMap(){
+  if(mapReady)return; mapReady=true;
+  map=L.map('map',{scrollWheelZoom:false}).setView([43.40,-5.12],11);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:18, attribution:'© OpenStreetMap'}).addTo(map);
+  gasLayer=L.layerGroup().addTo(map);
+  CENTROS.forEach(c=>L.marker([c.lat,c.lon],{icon:L.divIcon({className:'',html:`<div style="font-size:22px">🛶</div>`,iconSize:[22,22]})})
+    .addTo(map).bindPopup('<b>'+c.n+'</b>'));
+  setTimeout(()=>map.invalidateSize(),200);
+}
+function haversine(a,b,c,d){const R=6371,r=x=>x*Math.PI/180;
+  const dl=r(c-a),dn=r(d-b);const x=Math.sin(dl/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(dn/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
+function num(v){if(v==null)return NaN;const s=(''+v).trim().replace(',','.');return s?parseFloat(s):NaN;}
+function decodeName(n){return n.replace(/_x([0-9A-Fa-f]{4})_/g,(_,h)=>String.fromCharCode(parseInt(h,16)));}
+
+async function fetchMinetur(){
+  return grab('https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/FiltroProvincia/33');
+}
+function parseEstaciones(txt){
+  txt=txt.trim();
+  let lista=[];
+  if(txt[0]==='{'){
+    const j=JSON.parse(txt); fechaMinetur=j.Fecha||''; 
+    lista=(j.ListaEESSPrecio||[]).map(o=>o);
+  }else{
+    const doc=new DOMParser().parseFromString(txt,'application/xml');
+    const f=doc.getElementsByTagName('Fecha')[0]; if(f)fechaMinetur=f.textContent;
+    const nodes=doc.getElementsByTagName('EESSPrecio');
+    for(const nd of nodes){
+      const o={};
+      for(const ch of nd.children){ o[decodeName(ch.tagName)]=ch.textContent; }
+      lista.push(o);
+    }
+  }
+  return lista.map(o=>{
+    const lat=num(o['Latitud']), lon=num(o['Longitud (WGS84)']);
+    let dmin=Infinity, cerca='';
+    CENTROS.forEach(c=>{const d=haversine(lat,lon,c.lat,c.lon); if(d<dmin){dmin=d;cerca=c.n;}});
+    return {
+      nombre:o['Rótulo']||'Estación', dir:o['Dirección']||'', muni:o['Municipio']||o['Localidad']||'',
+      horario:o['Horario']||'', lat, lon, cerca, dist:dmin,
+      p:{g95:num(o['Precio Gasolina 95 E5']),g98:num(o['Precio Gasolina 98 E5']),
+         diesel:num(o['Precio Gasoleo A']),glp:num(o['Precio Gases licuados del petróleo (GLP)'])}
+    };
+  }).filter(e=>!isNaN(e.lat)&&e.dist<=RADIO_KM);
+}
+async function cargarGasolineras(){
+  gasLoaded=true;
+  const est=document.getElementById('gas-estado');
+  est.innerHTML='<span class="spin">⏳</span> Cargando precios oficiales…';
+  try{
+    const txt=await fetchMinetur();
+    ESTACIONES=parseEstaciones(txt);
+    if(!ESTACIONES.length) throw new Error('respuesta vacía (0 estaciones tras filtrar)');
+    renderGas();
+  }catch(e){
+    gasLoaded=false;
+    est.innerHTML=avisoEntorno()+
+      '⚠️ No se pudieron cargar los precios ('+(e.message||e)+'). '+
+      '<a href="https://geoportalgasolineras.es" target="_blank" rel="noopener">Ver en el Geoportal oficial</a> '+
+      '<button class="btn btn-s" id="reintentar-gas" style="padding:4px 12px">🔄 Reintentar</button>';
+    const rb=document.getElementById('reintentar-gas'); if(rb)rb.onclick=cargarGasolineras;
+    document.getElementById('lista-gas').innerHTML='';
+  }
+}
+function colorPrecio(i,total){ if(total<=1)return'#3aa655'; const q=i/(total-1);
+  return q<0.34?'#3aa655':q<0.67?'#f3b61f':'#e4572e'; }
+function renderGas(){
+  const est=document.getElementById('gas-estado');
+  const cont=document.getElementById('lista-gas');
+  const key=FUEL;
+  let arr=ESTACIONES.filter(e=>!isNaN(e.p[key])).sort((a,b)=>a.p[key]-b.p[key]);
+  const fecha=fechaMinetur?('· '+fechaMinetur.split(' ')[0]):'';
+  est.innerHTML=`⛽ <b>${arr.length}</b> gasolineras con ${FUEL_NOM[key]} en 20&nbsp;km ${fecha} `+
+    `<button class="btn btn-s" id="refrescar" style="padding:4px 12px">🔄 Actualizar</button>`;
+  document.getElementById('refrescar').onclick=()=>{gasLoaded=false;est.innerHTML='<span class="spin">⏳</span> Actualizando…';cargarGasolineras();};
+  const top=arr.slice(0,25);
+  cont.innerHTML=top.map((e,i)=>`
+    <div class="gas-item ${i===0?'top':''}" data-i="${i}">
+      <div class="rank">${i+1}</div>
+      <div class="gas-info">
+        <b>${e.nombre} ${i===0?'<span class="badge-barata">la + barata</span>':''}</b>
+        <span>📍 ${e.muni} · ${e.dist.toFixed(1)} km de ${e.cerca}</span>
+      </div>
+      <div class="precio">${e.p[key].toFixed(3)}<small>€/L</small></div>
+    </div>`).join('');
+  // mapa
+  if(map&&gasLayer){
+    gasLayer.clearLayers();
+    top.forEach((e,i)=>{
+      const col=colorPrecio(i,top.length);
+      const icon=L.divIcon({className:'',html:`<div class="mk-pin" style="background:${col}"><span>${e.p[key].toFixed(2)}</span></div>`,
+        iconSize:[30,30],iconAnchor:[15,30]});
+      const m=L.marker([e.lat,e.lon],{icon}).addTo(gasLayer);
+      m.bindPopup(`<b>${e.nombre}</b><br>${FUEL_NOM[key]}: <b>${e.p[key].toFixed(3)} €/L</b><br>${e.muni}<br>`+
+        `<a href="https://www.google.com/maps/dir/?api=1&destination=${e.lat},${e.lon}" target="_blank">🧭 Cómo llegar</a>`);
+      e._m=m;
+    });
+    const pts=top.map(e=>[e.lat,e.lon]);
+    if(pts.length)map.fitBounds(pts,{padding:[30,30],maxZoom:13});
+  }
+  cont.querySelectorAll('.gas-item').forEach(el=>{
+    el.onclick=()=>{const e=top[+el.dataset.i]; if(e._m){map.setView([e.lat,e.lon],14);e._m.openPopup();document.getElementById('map').scrollIntoView({behavior:'smooth',block:'center'});}};
+  });
+}
+document.getElementById('fuel-tabs').addEventListener('click',e=>{
+  const c=e.target.closest('.chip'); if(!c)return;
+  document.querySelectorAll('#fuel-tabs .chip').forEach(x=>x.classList.toggle('act',x===c));
+  FUEL=c.dataset.fuel; if(ESTACIONES.length)renderGas();
+});
+
+/* ============ TIEMPO ============ */
+const LOCS={ribadesella:{lat:43.4623,lon:-5.0576,n:'Ribadesella'},arriondas:{lat:43.3897,lon:-5.1836,n:'Arriondas'}};
+let CLIMA_LOC='ribadesella';
+const WMO={0:['Despejado','☀️'],1:['Casi despejado','🌤️'],2:['Nubes y claros','⛅'],3:['Nublado','☁️'],
+  45:['Niebla','🌫️'],48:['Niebla','🌫️'],51:['Llovizna','🌦️'],53:['Llovizna','🌦️'],55:['Llovizna','🌧️'],
+  56:['Llovizna helada','🌧️'],57:['Llovizna helada','🌧️'],61:['Lluvia','🌧️'],63:['Lluvia','🌧️'],65:['Lluvia fuerte','🌧️'],
+  66:['Lluvia helada','🌧️'],67:['Lluvia helada','🌧️'],71:['Nieve','🌨️'],73:['Nieve','🌨️'],75:['Nieve','🌨️'],
+  77:['Aguanieve','🌨️'],80:['Chubascos','🌦️'],81:['Chubascos','🌦️'],82:['Chubascos','⛈️'],
+  85:['Chubascos nieve','🌨️'],86:['Chubascos nieve','🌨️'],95:['Tormenta','⛈️'],96:['Tormenta granizo','⛈️'],99:['Tormenta granizo','⛈️']};
+const wmo=c=>WMO[c]||['—','🌡️'];
+const DIAS=['dom','lun','mar','mié','jue','vie','sáb'];
+const DIAS_LARGO=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+function esDiaEvento(iso){ return iso>='2026-07-22'&&iso<='2026-07-26'; }
+let HOURLY=null, DIA_ABIERTO=null;
+const _panel=()=>document.getElementById('dia-panel');
+function cerrarDiaPanel(){
+  _panel().classList.remove('open');
+  document.querySelectorAll('#forecast .dia.sel').forEach(x=>x.classList.remove('sel'));
+  DIA_ABIERTO=null;
+}
+function abrirDiaPanel(iso,card){
+  if(!HOURLY)return;
+  if(DIA_ABIERTO===iso){ cerrarDiaPanel(); return; }   // toggle: volver a tocar cierra
+  DIA_ABIERTO=iso;
+  document.querySelectorAll('#forecast .dia.sel').forEach(x=>x.classList.remove('sel'));
+  if(card)card.classList.add('sel');
+
+  const dt=new Date(iso+'T00:00');
+  // recolecta las horas del día y su min/max para escalar las barras
+  const idx=[]; let tmin=Infinity,tmax=-Infinity;
+  for(let i=0;i<HOURLY.time.length;i++){
+    if(!HOURLY.time[i].startsWith(iso))continue;
+    idx.push(i); const t=HOURLY.temperature_2m[i];
+    if(t<tmin)tmin=t; if(t>tmax)tmax=t;
+  }
+  const span=Math.max(1,tmax-tmin);
+  const ahoraISO=new Date().toISOString().slice(0,13); // yyyy-mm-ddThh
+
+  document.getElementById('dia-panel-titulo').textContent=`${DIAS_LARGO[dt.getDay()]} ${dt.getDate()}/${dt.getMonth()+1}`;
+  document.getElementById('dia-panel-rango').innerHTML=`<b>${Math.round(tmax)}°</b> máx · ${Math.round(tmin)}° mín`;
+
+  let html='';
+  for(const i of idx){
+    const hh=HOURLY.time[i].slice(11,16);
+    const [,hi]=wmo(HOURLY.weather_code[i]);
+    const t=HOURLY.temperature_2m[i];
+    const h=Math.round(14+((t-tmin)/span)*34);           // barra 14–48px
+    const lluvia=HOURLY.precipitation_probability[i]??0;
+    const ahora=HOURLY.time[i].slice(0,13)===ahoraISO;
+    html+=`<div class="hcol${ahora?' ahora':''}">
+      <span class="hh">${ahora?'ahora':hh}</span>
+      <span class="hi">${hi}</span>
+      <span class="ht">${Math.round(t)}°</span>
+      <span class="hbar" style="height:${h}px"></span>
+      <span class="hl${lluvia<5?' seco':''}">💧${lluvia}%</span>
+    </div>`;
+  }
+  const horas=document.getElementById('dia-panel-horas');
+  horas.innerHTML=html;
+  _panel().classList.add('open');
+
+  // coloca el "pico" bajo la tarjeta y centra la hora actual
+  if(card){
+    const fc=document.getElementById('forecast');
+    const pico=card.offsetLeft-fc.scrollLeft+card.offsetWidth/2;
+    document.querySelector('.dia-panel-inner').style.setProperty('--pico',Math.max(14,pico)+'px');
+  }
+  const ah=horas.querySelector('.ahora'); if(ah)ah.scrollIntoView({inline:'center',block:'nearest'});
+}
+document.getElementById('dia-panel-cerrar').addEventListener('click',cerrarDiaPanel);
+async function cargarClima(loc){
+  climaLoaded=true; CLIMA_LOC=loc;
+  const L=LOCS[loc];
+  const now=document.getElementById('clima-now');
+  const fc=document.getElementById('forecast');
+  now.innerHTML='<span class="spin">⏳</span> Cargando el tiempo…';
+  try{
+    const u=`https://api.open-meteo.com/v1/forecast?latitude=${L.lat}&longitude=${L.lon}`+
+      `&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m`+
+      `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max`+
+      `&hourly=temperature_2m,weather_code,precipitation_probability`+
+      `&timezone=Europe%2FMadrid&forecast_days=16`;
+    const j=JSON.parse(await grab(u));
+    const c=j.current, [txt,ic]=wmo(c.weather_code);
+    now.innerHTML=`
+      <div class="fila">
+        <div class="ico">${ic}</div>
+        <div>
+          <div class="temp">${Math.round(c.temperature_2m)}°</div>
+          <div class="cond">${txt} · ${L.n}</div>
+          <div class="sub">Sensación ${Math.round(c.apparent_temperature)}°</div>
+        </div>
+      </div>
+      <div class="clima-datos">
+        <span>💧 ${c.relative_humidity_2m}% humedad</span>
+        <span>🌧️ ${c.precipitation} mm</span>
+        <span>💨 ${Math.round(c.wind_speed_10m)} km/h</span>
+      </div>`;
+    HOURLY=j.hourly; cerrarDiaPanel();
+    const d=j.daily; let html='';
+    for(let i=0;i<d.time.length;i++){
+      const iso=d.time[i]; const dt=new Date(iso+'T00:00');
+      const [,di]=wmo(d.weather_code[i]);
+      const evt=esDiaEvento(iso);
+      html+=`<div class="dia ${evt?'evt':''}" data-iso="${iso}">
+        <div class="d">${evt?'🛶 ':''}${DIAS[dt.getDay()]}</div>
+        <div class="fe">${dt.getDate()}/${dt.getMonth()+1}</div>
+        <div class="di">${di}</div>
+        <div class="tmax">${Math.round(d.temperature_2m_max[i])}°</div>
+        <div class="tmin">${Math.round(d.temperature_2m_min[i])}°</div>
+        <div class="lluvia">💧${d.precipitation_probability_max[i]??0}%</div>
+      </div>`;
+    }
+    fc.innerHTML=html;
+    const ev=fc.querySelector('.evt'); if(ev)ev.scrollIntoView({inline:'center',block:'nearest'});
+    if(!fc.dataset.click){ fc.dataset.click='1';
+      fc.addEventListener('click',e=>{ const el=e.target.closest('.dia'); if(el)abrirDiaPanel(el.dataset.iso,el); });
+    }
+  }catch(e){
+    climaLoaded=false;
+    now.innerHTML=avisoEntorno()+'⚠️ No se pudo cargar el tiempo ('+(e.message||e)+'). '+
+      '<button class="btn btn-s" id="reintentar-clima" style="padding:4px 12px;margin-top:8px">🔄 Reintentar</button>';
+    const rb=document.getElementById('reintentar-clima'); if(rb)rb.onclick=()=>cargarClima(CLIMA_LOC);
+  }
+}
+document.getElementById('clima-toggle').addEventListener('click',e=>{
+  const c=e.target.closest('.chip'); if(!c)return;
+  document.querySelectorAll('#clima-toggle .chip').forEach(x=>x.classList.toggle('act',x===c));
+  cargarClima(c.dataset.loc);
+});
+
+/* ============ NOTICIAS ============ */
+async function cargarNoticias(){
+  noticiasLoaded=true;
+  const cont=document.getElementById('noticias');
+  const rss='https://news.google.com/rss/search?q='+encodeURIComponent('"Descenso del Sella" OR Ribadesella')+'&hl=es&gl=ES&ceid=ES:es';
+  let xml=null;
+  try{ xml=await grab(rss); }catch(e){}
+  if(!xml||!xml.includes('<item')){ noticiasLoaded=false; cont.innerHTML=avisoEntorno()+'<a class="noticia" target="_blank" rel="noopener" href="https://news.google.com/search?q=Descenso%20del%20Sella&hl=es"><b>Ver noticias del Descenso del Sella en Google News</b><span>No se pudieron cargar aquí ahora mismo</span></a>'; return; }
+  try{
+    const doc=new DOMParser().parseFromString(xml,'application/xml');
+    const items=[...doc.querySelectorAll('item')].slice(0,8);
+    if(!items.length)throw 0;
+    cont.innerHTML=items.map(it=>{
+      const t=it.querySelector('title')?.textContent||'';
+      const link=it.querySelector('link')?.textContent||'#';
+      const src=it.querySelector('source')?.textContent||'';
+      const pd=it.querySelector('pubDate')?.textContent||'';
+      let fecha=''; if(pd){const dt=new Date(pd); if(!isNaN(dt))fecha=dt.toLocaleDateString('es-ES',{day:'numeric',month:'short'});}
+      return `<a class="noticia" target="_blank" rel="noopener" href="${link}"><b>${t}</b><span>${src}${fecha?' · '+fecha:''}</span></a>`;
+    }).join('');
+  }catch(e){
+    cont.innerHTML='<a class="noticia" target="_blank" rel="noopener" href="https://news.google.com/search?q=Descenso%20del%20Sella&hl=es"><b>Ver noticias en Google News</b><span>Abrir búsqueda</span></a>';
+  }
+}
+
+/* ============ SORTEO ============ */
+const store={
+  get k(){return 'sella_sorteo'},
+  load(){try{return JSON.parse(localStorage.getItem(this.k))||{names:[],hist:[],desc:false}}catch(e){return {names:[],hist:[],desc:false}}},
+  save(d){try{localStorage.setItem(this.k,JSON.stringify(d))}catch(e){}}
+};
+let S=store.load(); // empieza vacío: los nombres los añade el usuario
+const namesList=document.getElementById('names-list');
+const histBox=document.getElementById('historial');
+const histList=document.getElementById('hist-list');
+const optDesc=document.getElementById('opt-descartar');
+optDesc.checked=!!S.desc;
+
+function renderNames(){
+  namesList.innerHTML=S.names.map((p,i)=>`<span class="name-chip ${p.out?'out':''}">${p.n}<button data-i="${i}" aria-label="quitar">×</button></span>`).join('')
+    || '<span style="color:var(--tinta-suave);font-weight:700">Añade nombres para empezar…</span>';
+  namesList.querySelectorAll('button').forEach(b=>b.onclick=()=>{S.names.splice(+b.dataset.i,1);store.save(S);renderNames();});
+}
+function renderHist(){
+  if(!S.hist.length){histBox.style.display='none';return;}
+  histBox.style.display='block';
+  histList.innerHTML=S.hist.map(h=>`<li>${h}</li>`).join('');
+}
+function addName(){
+  const inp=document.getElementById('name-input');
+  const v=inp.value.trim();
+  if(!v)return;
+  v.split(/[,\n]/).map(s=>s.trim()).filter(Boolean).forEach(nm=>S.names.push({n:nm,out:false}));
+  inp.value=''; store.save(S); renderNames(); inp.focus();
+}
+document.getElementById('add-name').onclick=addName;
+document.getElementById('name-input').addEventListener('keydown',e=>{if(e.key==='Enter')addName();});
+optDesc.onchange=()=>{S.desc=optDesc.checked;store.save(S);};
+
+document.getElementById('sortear').onclick=function(){
+  const activos=S.names.filter(p=>!p.out);
+  const stage=document.getElementById('winner-stage');
+  if(activos.length===0){stage.innerHTML='<div style="color:var(--tinta-suave);font-weight:800">🎈 No quedan participantes. Añade nombres o reinicia.</div>';return;}
+  this.disabled=true;
+  stage.innerHTML='<div style="font-family:Fredoka;font-weight:700;font-size:26px" id="roll">🎲</div>';
+  const roll=document.getElementById('roll');
+  let ticks=0;const total=16;
+  const iv=setInterval(()=>{
+    roll.textContent=activos[Math.floor(Math.random()*activos.length)].n;
+    if(++ticks>=total){
+      clearInterval(iv);
+      const ganador=activos[Math.floor(Math.random()*activos.length)];
+      stage.innerHTML=`<div class="banner-win pop"><div class="lab">🎉 ¡El elegido es!</div><div class="nm">${ganador.n}</div></div>`;
+      // globos subiendo
+      const em=['🎈','🎈','🎈','🎉','⭐'];
+      for(let i=0;i<10;i++){const b=document.createElement('span');b.className='float-balloon';
+        b.textContent=em[i%em.length];b.style.left=(8+Math.random()*84)+'%';b.style.animationDelay=(Math.random()*0.5)+'s';
+        b.style.fontSize=(20+Math.random()*16)+'px';stage.appendChild(b);setTimeout(()=>b.remove(),2600);}
+      S.hist.unshift(ganador.n); if(S.hist.length>20)S.hist.pop();
+      if(S.desc){const idx=S.names.indexOf(ganador); if(idx>-1)S.names[idx].out=true;}
+      store.save(S); renderNames(); renderHist();
+      this.disabled=false;
+    }
+  },90);
+};
+document.getElementById('reset-hist').onclick=()=>{
+  S.hist=[]; S.names.forEach(p=>p.out=false); store.save(S); renderHist(); renderNames();
+  document.getElementById('winner-stage').innerHTML='';
+};
+renderNames(); renderHist();
+</script>
+</body>
+</html>
