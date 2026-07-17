@@ -179,6 +179,19 @@
   .plan-base a{color:var(--amarillo);font-weight:700}
   .plan-base .dist{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}
   .plan-base .dist span{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:4px 11px;font-size:11.5px;font-weight:700;color:#EBE6D6}
+  .tels-t{font-family:'Hanken Grotesk';font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--amarillo);margin:16px 0 8px}
+  .tels{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:8px}
+  .tels a,.tels button{display:flex;align-items:center;gap:9px;text-align:left;width:100%;cursor:pointer;
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:9px 11px;
+    font-family:'Hanken Grotesk';font-size:12px;font-weight:600;color:#C7D8CE;text-decoration:none}
+  .tels a:active,.tels button:active{background:rgba(255,255,255,.15)}
+  .tels .e{font-size:17px;line-height:1}
+  .tels b{display:block;font-size:13.5px;font-weight:800;color:#FBF7EC;letter-spacing:.01em}
+  .tels .sos{border-color:rgba(228,87,46,.55);background:rgba(228,87,46,.14)}
+  /* tus números: llamar y corregir el dedazo, sin salir de la tarjeta */
+  .tel-item{display:flex}
+  .tel-item a{flex:1;border-radius:10px 0 0 10px}
+  .tels .ed{width:40px;flex:none;justify-content:center;border-radius:0 10px 10px 0;border-left:none;font-size:14px}
   .plan-dia{background:var(--papel-card);border:1px solid var(--papel-linea);border-radius:var(--radio);box-shadow:var(--sombra-s);margin-bottom:16px;overflow:hidden}
   .plan-dia.evt{border-color:var(--rojo);box-shadow:0 0 0 1.5px var(--rojo) inset,var(--sombra-s)}
   .pd-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:15px 18px 13px;border-bottom:1px solid var(--papel-linea)}
@@ -412,15 +425,17 @@
   .lnk:hover{background:rgba(44,110,120,.10)}
 
   /* ---------- BUFONES / MAR ---------- */
-  .mar{background:var(--papel-card);border:1px solid var(--papel-linea);border-left:3px solid var(--uva);
+  .mar,.rio{background:var(--papel-card);border:1px solid var(--papel-linea);border-left:3px solid var(--uva);
     border-radius:12px;padding:14px 16px;margin-bottom:18px;box-shadow:var(--sombra-s)}
-  .mar h3{font-size:16px;margin-bottom:3px}
-  .mar .m-est{font-family:'Fraunces';font-weight:600;font-size:18px;margin:6px 0 4px}
-  .mar .m-est.si{color:var(--verde)} .mar .m-est.quiza{color:var(--amarillo)} .mar .m-est.no{color:var(--rojo)}
-  .mar .m-sub{font-size:12.5px;color:var(--tinta-suave);font-weight:600;line-height:1.5}
-  .mar .m-pleas{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
-  .mar .m-pleas span{background:rgba(44,110,120,.10);color:var(--uva-hondo);border-radius:5px;padding:3px 9px;
+  .mar h3,.rio h3{font-size:16px;margin-bottom:3px}
+  .m-est{font-family:'Fraunces';font-weight:600;font-size:18px;margin:6px 0 4px}
+  .m-est.si{color:var(--verde)} .m-est.quiza{color:var(--amarillo)} .m-est.no{color:var(--rojo)}
+  .m-sub{font-size:12.5px;color:var(--tinta-suave);font-weight:600;line-height:1.5}
+  .m-pleas{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+  .m-pleas span{background:rgba(44,110,120,.10);color:var(--uva-hondo);border-radius:5px;padding:3px 9px;
     font-size:11.5px;font-weight:700}
+  /* el caudal vive dentro de la tarjeta del día 24, no suelto en la página */
+  .rio{border-left-color:var(--verde);margin:0 18px 14px}
 
   /* ---------- FAVORITOS / DISTANCIA ---------- */
   .fav{position:absolute;top:9px;right:9px;z-index:2;width:33px;height:33px;border-radius:50%;border:none;
@@ -504,6 +519,7 @@
     <div class="filtros" id="f-orden" role="group" aria-label="Ordenar">
       <button type="button" class="chip act verde" data-orden="normal" aria-pressed="true">📋 Por defecto</button>
       <button type="button" class="chip" data-orden="cerca" aria-pressed="false">🏡 Más cerca de la casa</button>
+      <button type="button" class="chip" data-orden="yo" aria-pressed="false">📍 Cerca de mí</button>
       <button type="button" class="chip" data-orden="nota" aria-pressed="false">★ Mejor valorados</button>
     </div>
     <input class="buscar" id="buscador" placeholder="🔎 Buscar (cachopo, playa, cueva…)">
@@ -531,6 +547,14 @@
         <span>🏖️ Llanes · 20 min</span>
         <span>🛶 Arriondas · 35 min</span>
       </div>
+      <div class="tels-t">teléfonos que importan</div>
+      <div class="tels" id="tels">
+        <a class="sos" href="tel:112"><span class="e">🚨</span><span>Emergencias · rescate<b>112</b></span></a>
+        <a href="tel:062"><span class="e">🚔</span><span>Guardia Civil<b>062</b></span></a>
+        <a href="tel:985849098"><span class="e">🏥</span><span>Centro de salud Cangas<b>985 849 098</b></span></a>
+        <a href="tel:985848797"><span class="e">🚕</span><span>Taxitur Cangas<b>985 848 797</b></span></a>
+      </div>
+      <div class="tels" id="tels-mios" style="margin-top:8px"></div>
     </div>
 
     <!-- MIÉRCOLES 22 -->
@@ -588,6 +612,7 @@
         <div class="pd-clima"></div>
       </div>
       <div class="pd-sol"></div>
+      <div class="rio" id="rio"><span class="spin">⏳</span> Mirando cómo baja el río…</div>
       <div class="pd-body">
         <div class="pd-row" data-id="24-1"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">9:30</span><span class="pd-txt">Desayuno fuerte en la casa. Preparad: bañador puesto, escarpines, crema, gorra y bote estanco para el móvil.</span></div>
         <div class="pd-row" data-id="24-2"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">10:50</span><span class="pd-txt">Salir hacia <b class="lnk" data-sitio="Salida del Descenso">Arriondas</b> (~35 min) y presentarse en la empresa con margen.</span></div>
@@ -878,7 +903,7 @@ function irATab(tab,push){
   if(tab==='gas'){ try{initMap();}catch(e){console.warn('Leaflet no cargó:',e);} if(!gasLoaded) cargarGasolineras(); }
   if(tab==='explora' && mapSitios){ setTimeout(()=>mapSitios.invalidateSize(),150); }
   if(tab==='clima'){ if(!climaLoaded){cargarClima(CLIMA_LOC);} if(!noticiasLoaded){cargarNoticias();} cargarMar(); }
-  if(tab==='plan'){ if(!planLoaded) cargarClimaPlan(); setTimeout(irAHoy,120); }
+  if(tab==='plan'){ if(!planLoaded) cargarClimaPlan(); cargarRio(); setTimeout(irAHoy,120); }
 }
 tabbar.addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) irATab(b.dataset.tab,true); });
 addEventListener('hashchange',()=>irATab(location.hash.slice(1),false));
@@ -915,7 +940,20 @@ let fTipo='todo', fPueblo='todos', fTexto='', fOrden='normal';
 
 /* La casa: origen de las distancias y del tiempo por defecto (coord. verificada en OSM) */
 const CASA={lat:43.3420,lon:-4.9238,n:'La Robellada'};
-const distCasa=l=> typeof l.lat==='number' ? haversine(CASA.lat,CASA.lon,l.lat,l.lon) : Infinity;
+const distDe=(l,o)=> typeof l.lat==='number' ? haversine(o.lat,o.lon,l.lat,l.lon) : Infinity;
+const distCasa=l=>distDe(l,CASA);
+let MI_POS=null;                          // solo se rellena si pides "cerca de mí"
+const origen=()=> (fOrden==='yo'&&MI_POS) ? MI_POS : CASA;
+// ponytail: una lectura y a correr, sin watchPosition. Si te mueves, retocas el chip.
+function pideUbicacion(){
+  if(!navigator.geolocation) return avisa('📍 Este navegador no sabe dónde estás.');
+  avisa('📍 Buscando dónde estás…');
+  navigator.geolocation.getCurrentPosition(
+    p=>{ MI_POS={lat:p.coords.latitude,lon:p.coords.longitude}; renderExplora(); avisa('📍 Ordenado desde donde estás.'); },
+    ()=>{ fOrden='cerca'; marcaChips('#f-orden .chip','cerca','orden'); renderExplora();
+          avisa('📍 Sin ubicación: ordeno desde la casa.'); },
+    {timeout:8000,maximumAge:300000});
+}
 
 /* Favoritos: por nombre, no por índice, para que no se rompan al añadir sitios */
 const FAV_K='sella_favs';
@@ -1016,7 +1054,8 @@ function renderExplora(){
     }
     return true;
   });
-  if(fOrden==='cerca') res.sort((a,b)=>distCasa(a)-distCasa(b));
+  const O=origen(), desdeYo=O!==CASA;
+  if(fOrden==='cerca'||desdeYo) res.sort((a,b)=>distDe(a,O)-distDe(b,O));
   else if(fOrden==='nota') res.sort((a,b)=>b.stars-a.stars);
   renderMapaSitios(res);
   if(!res.length){
@@ -1026,7 +1065,7 @@ function renderExplora(){
     return;
   }
   cont.innerHTML=res.map(l=>{
-    const km=distCasa(l), fav=favs.has(l.n);
+    const km=distDe(l,O), fav=favs.has(l.n);
     return `
     <article class="card" id="sitio-${l._id}">
       <div class="foto${l.img?' has-img':''}">
@@ -1039,7 +1078,7 @@ function renderExplora(){
       <div class="meta">
         <span class="stars">★ ${l.stars.toFixed(1)}</span>
         <span>· 📍 ${l.pueblo}</span>
-        ${isFinite(km)?`<span class="dist-casa">· 🏡 ${km<10?km.toFixed(1):km.toFixed(0)} km</span>`:''}
+        ${isFinite(km)?`<span class="dist-casa">· ${desdeYo?'📍':'🏡'} ${km<10?km.toFixed(1):km.toFixed(0)} km</span>`:''}
         ${l.precio?`<span>· ${eur(l.precio)}</span>`:''}
         ${l.tags.map(t=>`<span class="tag ${l.t==='comer'?'comer':''}">${t}</span>`).join('')}
       </div>
@@ -1062,7 +1101,9 @@ document.getElementById('f-pueblo').addEventListener('click',e=>{
 });
 document.getElementById('f-orden').addEventListener('click',e=>{
   const c=e.target.closest('.chip'); if(!c)return;
-  fOrden=c.dataset.orden; marcaChips('#f-orden .chip',fOrden,'orden'); renderExplora();
+  fOrden=c.dataset.orden; marcaChips('#f-orden .chip',fOrden,'orden');
+  if(fOrden==='yo'&&!MI_POS) pideUbicacion();
+  renderExplora();
 });
 document.getElementById('buscador').addEventListener('input',e=>{fTexto=e.target.value.toLowerCase().trim();renderExplora();});
 renderExplora();
@@ -1199,6 +1240,9 @@ const WMO={0:['Despejado','☀️'],1:['Casi despejado','🌤️'],2:['Nubes y c
   77:['Aguanieve','🌨️'],80:['Chubascos','🌦️'],81:['Chubascos','🌦️'],82:['Chubascos','⛈️'],
   85:['Chubascos nieve','🌨️'],86:['Chubascos nieve','🌨️'],95:['Tormenta','⛈️'],96:['Tormenta granizo','⛈️'],99:['Tormenta granizo','⛈️']};
 const wmo=c=>WMO[c]||['—','🌡️'];
+// escala de la OMS. Importa: en el río vais 4 h sin una sombra
+const uvTxt=u=>u<3?'bajo':u<6?'moderado':u<8?'alto':u<11?'muy alto':'extremo';
+const uvDe=(d,i)=>d.uv_index_max&&d.uv_index_max[i]!=null?d.uv_index_max[i]:null;
 const DIAS=['dom','lun','mar','mié','jue','vie','sáb'];
 const DIAS_LARGO=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
 function esDiaEvento(iso){ return iso>='2026-07-22'&&iso<='2026-07-26'; }
@@ -1270,11 +1314,11 @@ async function cargarClima(loc){
   try{
     const u=`https://api.open-meteo.com/v1/forecast?latitude=${L.lat}&longitude=${L.lon}`+
       `&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m`+
-      `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset`+
+      `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset,uv_index_max`+
       `&hourly=temperature_2m,weather_code,precipitation_probability`+
       `&timezone=Europe%2FMadrid&forecast_days=16`;
     const j=JSON.parse(await grab(u));
-    const c=j.current, [txt,ic]=wmo(c.weather_code);
+    const c=j.current, [txt,ic]=wmo(c.weather_code), uv=uvDe(j.daily,0);
     const sol=j.daily.sunrise&&j.daily.sunrise[0]
       ? `<span>🌅 ${j.daily.sunrise[0].slice(11,16)}</span><span>🌇 ${j.daily.sunset[0].slice(11,16)}</span>` : '';
     now.innerHTML=`
@@ -1290,6 +1334,7 @@ async function cargarClima(loc){
         <span>💧 ${c.relative_humidity_2m}% humedad</span>
         <span>🌧️ ${c.precipitation} mm</span>
         <span>💨 ${Math.round(c.wind_speed_10m)} km/h</span>
+        ${uv!=null?`<span>🧴 UV ${Math.round(uv)} · ${uvTxt(uv)}</span>`:''}
         ${sol}
       </div>`;
     HOURLY=j.hourly; cerrarDiaPanel();
@@ -1331,7 +1376,7 @@ async function cargarClimaPlan(){
   planLoaded=true;
   try{
     const u=`https://api.open-meteo.com/v1/forecast?latitude=${CASA.lat}&longitude=${CASA.lon}`+
-      `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset`+
+      `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset,uv_index_max`+
       `&timezone=Europe%2FMadrid&forecast_days=16`;
     planClima=JSON.parse(await grab(u)).daily;
     pintaClimaPlan();
@@ -1347,7 +1392,9 @@ function pintaClimaPlan(){
     const ll=planClima.precipitation_probability_max[i]??0;
     box.innerHTML=`<span class="pc-i" title="${txt}">${ic}</span><span><b>${Math.round(planClima.temperature_2m_max[i])}°</b>`+
       ` ${Math.round(planClima.temperature_2m_min[i])}° <span class="pc-ll">💧${ll}%</span></span>`;
-    sol.textContent=`🌅 ${planClima.sunrise[i].slice(11,16)} · 🌇 ${planClima.sunset[i].slice(11,16)}`;
+    const uv=uvDe(planClima,i);
+    sol.textContent=`🌅 ${planClima.sunrise[i].slice(11,16)} · 🌇 ${planClima.sunset[i].slice(11,16)}`
+      +(uv!=null?` · 🧴 UV ${Math.round(uv)} (${uvTxt(uv)})`:'');
   });
 }
 
@@ -1417,6 +1464,80 @@ async function cargarMar(){
     const b=document.getElementById('re-mar'); if(b)b.onclick=cargarMar;
   }
 }
+
+/* ============ ¿CÓMO BAJA EL SELLA? (caudal en Arriondas) ============
+   Sale de Open-Meteo igual que el tiempo, así que el service worker ya lo
+   guarda solo: en el río, sin cobertura, sigue saliendo lo último visto. */
+let rioLoaded=false;
+/* ponytail: GloFAS es un modelo de ~5 km, no el aforo de la Confederación: el
+   número absoluto puede bailar. Los cortes están puestos a ojo para el Sella en
+   verano; si algún año no cuadran, se tocan aquí y ya. */
+const RIO_CORTES=[
+  [6,   'no',   '🪨 Va bajo',                 'se rasca en los rápidos: tocará bajarse a empujar la canoa más de una vez.'],
+  [12,  'quiza','👌 Caudal normal de verano', 'el río baja tranquilo. Remada cómoda y con paradas de baño.'],
+  [25,  'si',   '🛶 Buen caudal',             'el río empuja: bajada rápida y divertida sin dejarse los brazos.'],
+  [1e9, 'no',   '⚠️ Va crecido',              'mucha agua para ir de risas: confirmadlo con la empresa antes de plantaros allí.']];
+function juzgaRio(q){
+  const [,cls,tit,sub]=RIO_CORTES.find(c=>q<c[0]);
+  return [cls,tit,q.toFixed(1)+' m³/s · '+sub];
+}
+function tendenciaRio(v,i){          // contra 3 días antes: si sube, es que ha llovido en Picos
+  if(i<3||v[i]==null||v[i-3]==null) return '';
+  const p=(v[i]-v[i-3])/v[i-3]*100;
+  if(p>15)  return '📈 Viene subiendo · ha llovido en Picos';
+  if(p<-15) return '📉 Viene bajando';
+  return '➡️ Estable estos días';
+}
+async function cargarRio(){
+  if(rioLoaded)return; rioLoaded=true;
+  const box=document.getElementById('rio'); if(!box)return;
+  const iso=box.closest('.plan-dia').dataset.iso;
+  try{
+    const u='https://flood-api.open-meteo.com/v1/flood?latitude=43.3888&longitude=-5.1836'+
+      '&daily=river_discharge&past_days=7&forecast_days=16&timezone=Europe%2FMadrid';
+    const d=JSON.parse(await grab(u)).daily;
+    const i=d.time.indexOf(iso), q=i<0?null:d.river_discharge[i];
+    if(q==null){                     // la previsión aún no llega: no inventamos veredicto
+      box.innerHTML='<h3>🛶 ¿Cómo bajará el Sella?</h3><div class="m-est">🔭 Todavía no se sabe</div>'+
+        '<div class="m-sub">La previsión del caudal no alcanza aún al día del descenso. Vuelve a mirarlo cuando se acerque.</div>';
+      return;
+    }
+    const [cls,tit,sub]=juzgaRio(q), t=tendenciaRio(d.river_discharge,i);
+    box.innerHTML=`<h3>🛶 ¿Cómo baja el Sella <b>${etiquetaDia(iso)}</b>?</h3>
+      <div class="m-est ${cls}">${tit}</div>
+      <div class="m-sub">${sub}</div>
+      ${t?`<div class="m-pleas"><span>${t}</span></div>`:''}
+      <div class="m-sub" style="margin-top:9px;opacity:.7">Caudal estimado en Arriondas (modelo GloFAS): orientativo. Lo que diga la empresa de canoas va a misa.</div>`;
+  }catch(e){
+    rioLoaded=false;
+    box.innerHTML='🛶 No se pudo mirar el caudal. <button class="btn btn-s" id="re-rio" style="padding:4px 12px">🔄 Reintentar</button>';
+    const b=document.getElementById('re-rio'); if(b)b.onclick=cargarRio;
+  }
+}
+
+/* ============ TELÉFONOS PROPIOS (la casa y las canoas los pones tú) ============ */
+const TEL_K='sella_tels';
+let TELS=(()=>{try{return JSON.parse(localStorage.getItem(TEL_K))||{}}catch(e){return{}}})();
+const MIOS=[{k:'casa',e:'🏡',n:'La casa'},{k:'canoas',e:'🛶',n:'Empresa de canoas'}];
+const limpiaTel=s=>(s||'').replace(/[^0-9+ ]/g,'').trim().slice(0,20);
+const _mios=document.getElementById('tels-mios');
+function pintaTels(){
+  _mios.innerHTML=MIOS.map(m=>{
+    const t=TELS[m.k];
+    return t
+      ? `<div class="tel-item"><a href="tel:${t.replace(/ /g,'')}"><span class="e">${m.e}</span><span>${m.n}<b>${t}</b></span></a>`+
+        `<button type="button" class="ed" data-k="${m.k}" aria-label="Cambiar el teléfono de ${m.n}">✏️</button></div>`
+      : `<button type="button" data-k="${m.k}"><span class="e">${m.e}</span><span>${m.n}<b>➕ añadir</b></span></button>`;
+  }).join('');
+}
+_mios.addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  const m=MIOS.find(x=>x.k===b.dataset.k);
+  const t=limpiaTel(prompt('Teléfono de '+m.n.toLowerCase()+':',TELS[m.k]||''));  // ponytail: prompt() nativo, cero UI que mantener
+  if(!t)return;
+  TELS[m.k]=t; try{localStorage.setItem(TEL_K,JSON.stringify(TELS));}catch(err){}
+  pintaTels();
+});
 
 /* ============ NOTICIAS ============ */
 async function cargarNoticias(){
@@ -1667,10 +1788,21 @@ if(location.search.includes('selftest')){
   ok(isoLocal(new Date('2026-07-25T00:30:00'))==='2026-07-25','isoLocal: la fecha local no se va al día anterior');
   ok(diasHasta(hoyISO())===0 && diasHasta('2026-07-22')===Math.round((new Date('2026-07-22T00:00')-new Date(hoyISO()+'T00:00'))/864e5),
      'diasHasta: cuenta días de calendario (hoy = 0)');
+  ok(juzgaRio(3)[0]==='no' && juzgaRio(9)[0]==='quiza' && juzgaRio(18)[0]==='si' && juzgaRio(80)[0]==='no',
+     'juzgaRio: veredicto por caudal (y la crecida no cuela como buen caudal)');
+  ok(RIO_CORTES.every((c,i,a)=>!i||c[0]>a[i-1][0]),'juzgaRio: los cortes van de menos a más (si no, find() miente)');
+  const v=[10,10,10,10,13,10,7];
+  ok(tendenciaRio(v,4).startsWith('📈') && tendenciaRio(v,6).startsWith('📉') && tendenciaRio(v,3).startsWith('➡️'),
+     'tendenciaRio: sube / baja / estable contra 3 días antes');
+  ok(tendenciaRio(v,2)==='','tendenciaRio: sin 3 días de histórico, calla');
+  ok(uvTxt(2)==='bajo' && uvTxt(7)==='alto' && uvTxt(12)==='extremo','uvTxt: escala de la OMS');
+  ok(limpiaTel(' 985 <b>84</b>9098 ')==='985 849098','limpiaTel: solo dígitos, + y espacios (nada de HTML)');
+  ok(Math.round(distDe({lat:43.4631,lon:-5.0561},{lat:43.3888,lon:-5.1836}))===13,
+     'distDe: Arriondas → Ribadesella son ~13 km en línea recta');
 }
 
 /* ============ ARRANQUE (al final: todo definido ya) ============ */
-pintaPlan(); pintaOffline();
+pintaPlan(); pintaTels(); pintaOffline();
 irATab(location.hash.slice(1)||'explora',false);
 </script>
 </body>

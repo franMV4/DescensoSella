@@ -9,7 +9,7 @@
  * Rutas relativas a propósito: así funciona igual en usuario.github.io que en
  * usuario.github.io/LoQueSea/ sin tocar nada.
  */
-const V = 'sella-2026-v1';
+const V = 'sella-2026-v2';
 const SHELL = V + '-shell';
 const DATOS = V + '-datos';
 const TILES = V + '-tiles';
