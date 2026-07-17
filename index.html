@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛶</text></svg>">
-<style>  
+<style>
   :root{
     /* nombres heredados por el JS — remapeados a una paleta "Asturias" editorial */
     --cielo:#8FB2B4; --cielo2:#CBDCD8; --cielo-hondo:#4E7C82;
@@ -163,6 +163,30 @@
   .btn-s{background:transparent;color:var(--uva-hondo);border-color:var(--papel-linea)}
   .btn-s:hover{border-color:var(--uva);background:rgba(44,110,120,.06)}
   .empty{text-align:center;color:var(--tinta-suave);font-weight:600;padding:34px 10px;grid-column:1/-1}
+
+  /* ---------- PLAN DEL VIAJE ---------- */
+  .plan-base{position:relative;overflow:hidden;background:radial-gradient(120% 90% at 85% -20%,rgba(44,110,120,.5),transparent 55%),linear-gradient(160deg,var(--pino2),var(--pino));border:1px solid rgba(255,255,255,.14);border-radius:var(--radio);box-shadow:var(--sombra);color:#EAF2ED;padding:20px;margin-bottom:22px}
+  .plan-base h3{font-size:21px;color:#FBF7EC;margin-bottom:6px}
+  .plan-base p{margin:0;font-size:13.5px;line-height:1.6;color:#C7D8CE;font-weight:500}
+  .plan-base a{color:var(--amarillo);font-weight:700}
+  .plan-base .dist{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}
+  .plan-base .dist span{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:4px 11px;font-size:11.5px;font-weight:700;color:#EBE6D6}
+  .plan-dia{background:var(--papel-card);border:1px solid var(--papel-linea);border-radius:var(--radio);box-shadow:var(--sombra-s);margin-bottom:16px;overflow:hidden}
+  .plan-dia.evt{border-color:var(--rojo);box-shadow:0 0 0 1.5px var(--rojo) inset,var(--sombra-s)}
+  .pd-head{display:flex;align-items:center;gap:14px;padding:15px 18px 13px;border-bottom:1px solid var(--papel-linea)}
+  .pd-num{flex:none;text-align:center;font-family:'Fraunces';font-weight:600;font-size:33px;line-height:1;color:var(--rojo);letter-spacing:-.02em}
+  .pd-num small{display:block;font-family:'Hanken Grotesk';font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--tinta-suave);margin-top:3px}
+  .pd-head h3{font-size:19px;line-height:1.15}
+  .pd-sub{font-size:12.5px;color:var(--tinta-suave);font-weight:600;margin-top:3px}
+  .pd-body{padding:4px 18px 16px}
+  .pd-row{display:flex;gap:12px;padding:11px 0;border-bottom:1px dashed var(--papel-linea);font-size:14px;line-height:1.55;color:#414c44}
+  .pd-row:last-of-type{border-bottom:none}
+  .pd-hora{flex:none;width:54px;font-family:'Fraunces';font-weight:600;font-size:14.5px;color:var(--tinta);padding-top:1px}
+  .pd-row b{color:var(--tinta)}
+  .op{display:inline-block;background:var(--uva);color:#fff;border-radius:5px;padding:1px 8px;font-size:10.5px;font-weight:800;letter-spacing:.05em;margin-right:6px;vertical-align:1px}
+  .op.b{background:var(--amarillo)}
+  .pd-tip{background:rgba(192,138,42,.10);border-left:3px solid var(--amarillo);border-radius:8px;padding:9px 13px;font-size:13px;margin-top:12px;color:#414c44;line-height:1.55;font-weight:500}
+  .pd-tip b{color:var(--tinta)}
 
   /* ---------- GASOLINERAS ---------- */
   #map{height:300px;border-radius:var(--radio);border:1px solid var(--papel-linea);box-shadow:var(--sombra-s);margin-bottom:14px;background:#dbe6e4}
@@ -390,6 +414,106 @@
     <div class="grid" id="lista-explora"></div>
   </section>
 
+  <!-- ================= PLAN DEL VIAJE ================= -->
+  <section class="tab" id="tab-plan">
+    <div class="sec-head"><span class="eyebrow">día a día</span><h2>Plan del viaje</h2></div>
+    <p class="sec-sub">Del miércoles 22 al domingo 26. Itinerario pensado desde la casa, con opciones A/B para elegir según el día y las ganas.</p>
+
+    <div class="plan-base">
+      <h3>🏡 El Balcón de Onís · La Robellada</h3>
+      <p>Nuestra base está en <b>La Robellada (Onís)</b>, en plena falda de los Picos: posición perfecta entre montaña y costa. <a href="https://www.escapadarural.com/casa-rural/asturias/el-balcon-de-onis" target="_blank" rel="noopener">Ver la casa</a> · <a href="https://www.google.com/maps/search/?api=1&query=La+Robellada+Onis+Asturias" target="_blank" rel="noopener">Cómo llegar</a></p>
+      <div class="dist">
+        <span>🥾 Ruta del Cares · 15 min</span>
+        <span>🧀 Arenas de Cabrales · 15 min</span>
+        <span>⛪ Covadonga · 25 min</span>
+        <span>🌉 Cangas de Onís · 20 min</span>
+        <span>🏖️ Llanes · 20 min</span>
+        <span>🛶 Arriondas · 35 min</span>
+      </div>
+    </div>
+
+    <!-- MIÉRCOLES 22 -->
+    <div class="plan-dia">
+      <div class="pd-head">
+        <div class="pd-num">22<small>mié</small></div>
+        <div><h3>Llegada + Cangas de Onís</h3><div class="pd-sub">Día suave para instalarse y coger el ritmo asturiano</div></div>
+      </div>
+      <div class="pd-body">
+        <div class="pd-row"><span class="pd-hora">12:00</span><span>Llegada a la casa, instalarse y reparto de habitaciones (sorteo en la app si hay pelea 🎈).</span></div>
+        <div class="pd-row"><span class="pd-hora">14:00</span><span>Comer en Cangas. Ojo: miércoles cierran El Molín, Asturcelta y La Joguera → ir a <b>Bar Los Robles</b> (la mejor sidra escanciada) o <b>La Sifonería</b> (raciones y vermú, con terraza).</span></div>
+        <div class="pd-row"><span class="pd-hora">16:30</span><span>Paseo por Cangas: <b>Puente Romano</b> con la Cruz de la Victoria (la foto), casco y tiendas de quesos y sidra para aprovisionar la casa.</span></div>
+        <div class="pd-row"><span class="pd-hora">19:00</span><span><span class="op">A</span>Baño de bienvenida en la <b>Olla de San Vicente</b> (poza turquesa, a 10 min de Cangas — a última hora el parking se vacía). <span class="op b">B</span>Atardecer en el <b>Mirador del Pozo de la Oración</b> (Poo de Cabrales, 20 min): el Naranjo de Bulnes de frente. <a href="https://www.google.com/maps/search/?api=1&query=Mirador+Pozo+de+la+Oracion+Poo+de+Cabrales" target="_blank" rel="noopener">Maps</a></span></div>
+        <div class="pd-row"><span class="pd-hora">21:30</span><span>Cena tranquila en la casa: primera espicha con lo comprado en Cangas.</span></div>
+        <div class="pd-tip">💡 <b>Reservas del día 1:</b> nada más llegar, reservad ya la cena del sábado (El Molín de la Pedrera) y, si tocan Lagos el jueves, mirad el bus de Covadonga.</div>
+      </div>
+    </div>
+
+    <!-- JUEVES 23 -->
+    <div class="plan-dia">
+      <div class="pd-head">
+        <div class="pd-num">23<small>jue</small></div>
+        <div><h3>Día grande de Picos de Europa</h3><div class="pd-sub">Elegid una: las dos son top, pero mañana toca remar</div></div>
+      </div>
+      <div class="pd-body">
+        <div class="pd-row"><span class="pd-hora">7:30</span><span><span class="op">A</span><b>Lagos de Covadonga:</b> madrugón para subir en coche antes de las 8:00 (después, bus obligatorio desde Covadonga). Vuelta Enol–Ercina por la <b>majada de Belbín</b> (queso Gamonéu de puerto), parada en el <b>Mirador de la Reina</b> y bajada al <b>Santuario de Covadonga</b> con la Santa Cueva.</span></div>
+        <div class="pd-row"><span class="pd-hora">8:00</span><span><span class="op b">B</span><b>Ruta del Cares</b> desde Poncebos (a solo 20 min de la casa): la Garganta Divina. No hace falta hacerla entera, con llegar a Los Collaos (~2 h ida) ya flipas. Lleva agua y gorra: no hay sombra.</span></div>
+        <div class="pd-row"><span class="pd-hora">14:30</span><span>Comer según opción: <span class="op">A</span>en Cangas — <b>Taberna Asturcelta</b> o <b>El Molín de la Pedrera</b> (jueves abren ambos). <span class="op b">B</span>en <b>Arenas de Cabrales</b>, sidrería con queso Cabrales D.O.P. <a href="https://www.google.com/maps/search/?api=1&query=sidrerias+Arenas+de+Cabrales" target="_blank" rel="noopener">Maps</a></span></div>
+        <div class="pd-row"><span class="pd-hora">17:30</span><span><span class="op b">B</span>De vuelta, visita a la <b>Cueva del Queso de Cabrales</b> en Arenas (visita guiada con cata, ~45 min). <a href="https://www.google.com/maps/search/?api=1&query=Cueva+del+Queso+Cabrales+Arenas" target="_blank" rel="noopener">Maps</a></span></div>
+        <div class="pd-row"><span class="pd-hora">21:00</span><span>Cena sin complicarse: <b>El Horru Encantau</b> (Cangas, abre todos los días) o en la casa. Pronto a la cama: mañana, el Sella.</span></div>
+        <div class="pd-tip">⚠️ <b>No os machaquéis:</b> si hacéis el Cares completo (12 km), el viernes se rema con agujetas. Versión corta y tan contentos.</div>
+      </div>
+    </div>
+
+    <!-- VIERNES 24 -->
+    <div class="plan-dia evt">
+      <div class="pd-head">
+        <div class="pd-num" style="color:var(--rojo)">24<small>vie</small></div>
+        <div><h3>🛶 Descenso del Sella — 12:00</h3><div class="pd-sub">El día que da nombre al viaje: Arriondas → Ribadesella</div></div>
+      </div>
+      <div class="pd-body">
+        <div class="pd-row"><span class="pd-hora">9:30</span><span>Desayuno fuerte en la casa. Preparar: bañador puesto, escarpines o deportivas viejas, crema, gorra y <b>bote estanco</b> para el móvil.</span></div>
+        <div class="pd-row"><span class="pd-hora">10:50</span><span>Salir hacia <b>Arriondas</b> (~35 min) y presentarse en la empresa con margen.</span></div>
+        <div class="pd-row"><span class="pd-hora">12:00</span><span><b>¡Al agua!</b> Bajada de ~3-4 h con paradas para el baño y el bocata. El río hace el trabajo: remar poco y reírse mucho.</span></div>
+        <div class="pd-row"><span class="pd-hora">16:30</span><span>Comida-merienda de piragüista en <b>Ribadesella</b>: <b>Sidrería Carroceu</b> (marisco con vistas a la ría) o <b>Rompeolas</b> (raciones bestiales). Sin prisa, que el día es vuestro.</span></div>
+        <div class="pd-row"><span class="pd-hora">18:30</span><span>Paseo por el puerto y el casco viejo, <b>Escalera de Colores</b> y chapuzón-siesta en la <b>playa de Santa Marina</b>.</span></div>
+        <div class="pd-row"><span class="pd-hora">21:30</span><span>Sidras al atardecer en el paseo o cena ligera en <b>D'Asturianu</b> antes de volver a la casa.</span></div>
+        <div class="pd-tip">🛶 <b>Logística canoa:</b> casi todas las empresas recogen en Llovio o Ribadesella y devuelven al coche en Arriondas en bus. Confirmadlo al reservar para cuadrar la tarde.</div>
+      </div>
+    </div>
+
+    <!-- SÁBADO 25 -->
+    <div class="plan-dia">
+      <div class="pd-head">
+        <div class="pd-num">25<small>sáb</small></div>
+        <div><h3>Día de costa (o la revancha de Picos)</h3><div class="pd-sub">Playas únicas, Llanes y cena de despedida</div></div>
+      </div>
+      <div class="pd-body">
+        <div class="pd-row"><span class="pd-hora">10:00</span><span><span class="op">A</span><b>Ruta costera:</b> empezar por la <b>playa de Gulpiyuri</b> (la playa sin mar — pronto, que se llena) y los <b>Bufones de Pría</b> si hay marea alta.</span></div>
+        <div class="pd-row"><span class="pd-hora">12:30</span><span><span class="op">A</span><b>Llanes</b>: los <b>Cubos de la Memoria</b> en el puerto, casco viejo y tapeo-vermú por sus calles.</span></div>
+        <div class="pd-row"><span class="pd-hora">16:00</span><span><span class="op">A</span>Tarde de baño de verdad: <b>Torimbia</b> (la concha virgen más bonita, 15 min andando) o <b>playa de Vega</b> (más cómoda, con chiringuito).</span></div>
+        <div class="pd-row"><span class="pd-hora">10:00</span><span><span class="op b">B</span>La opción de Picos que no hicisteis el jueves (Lagos o Cares), o subir a <b>Bulnes</b> en funicular: pueblo sin coches con el Urriellu delante.</span></div>
+        <div class="pd-row"><span class="pd-hora">20:00</span><span>Atardecer en el <b>Mirador del Fitu</b> de camino a casa si vais con energía: mar y Picos a la vez.</span></div>
+        <div class="pd-row"><span class="pd-hora">21:30</span><span><b>Cena de despedida</b> (reservada el día 1): <b>El Molín de la Pedrera</b> en Cangas. Si el grupo quiere homenaje gordo, <b>Casa Marcial</b> (3⭐ Michelin) o <b>Arbidel</b> (1⭐, Ribadesella).</span></div>
+        <div class="pd-tip">🌊 <b>Bufones:</b> solo "soplan" con marea alta y mar de fondo — mirad la tabla de mareas antes; con mar en calma, saltáoslos y ganáis tiempo de playa.</div>
+      </div>
+    </div>
+
+    <!-- DOMINGO 26 -->
+    <div class="plan-dia">
+      <div class="pd-head">
+        <div class="pd-num">26<small>dom</small></div>
+        <div><h3>Últimos rincones y vuelta</h3><div class="pd-sub">Mañana cerquita de casa, comida y carretera por la tarde</div></div>
+      </div>
+      <div class="pd-body">
+        <div class="pd-row"><span class="pd-hora">10:00</span><span>Recoger la casa y despedida del balcón. Parada en <b>Benia de Onís</b> a comprar <b>queso Gamonéu</b> para llevar a casa (se vende en la plaza). <a href="https://www.google.com/maps/search/?api=1&query=Benia+de+Onis+queso+Gamoneu" target="_blank" rel="noopener">Maps</a></span></div>
+        <div class="pd-row"><span class="pd-hora">11:00</span><span><span class="op">A</span><b>La Cuevona de Cuevas del Agua</b>: cruzar a pie el túnel de estalactitas que es la única entrada al pueblo (gratis, de camino si salís por Ribadesella). <span class="op b">B</span><b>Cuevona de Avín</b> y su fauna glacial, a 5 min de la casa. <a href="https://www.google.com/maps/search/?api=1&query=Cuevona+de+Avin+Onis" target="_blank" rel="noopener">Maps</a></span></div>
+        <div class="pd-row"><span class="pd-hora">13:00</span><span>Domingo es día de <b>mercado en Cangas de Onís</b>: última vuelta y comida de cierre — <b>La Joguera</b> (el cachopo pendiente, abre sábado y domingo) o <b>Bar Los Robles</b>.</span></div>
+        <div class="pd-row"><span class="pd-hora">16:30</span><span>Carretera y manta 🚗 — con el maletero oliendo a queso y sidra, como debe ser.</span></div>
+        <div class="pd-tip">⛽ <b>Antes de salir:</b> mirad la pestaña Gasolina y repostad en la más barata de la ruta.</div>
+      </div>
+    </div>
+  </section>
+
   <!-- ================= GASOLINERAS ================= -->
   <section class="tab" id="tab-gas">
     <div class="sec-head"><span class="eyebrow">a repostar</span><h2>Gasolineras más baratas</h2></div>
@@ -466,6 +590,7 @@
 
 <nav class="tabbar" id="tabbar">
   <button class="on" data-tab="explora"><span class="ic">🗺️</span>Explora</button>
+  <button data-tab="plan"><span class="ic">📋</span>Plan</button>
   <button data-tab="gas"><span class="ic">⛽</span>Gasolina</button>
   <button data-tab="clima"><span class="ic">🌤️</span>Tiempo</button>
   <button data-tab="sorteo"><span class="ic">🎉</span>Sorteo</button>
