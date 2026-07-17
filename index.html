@@ -217,7 +217,7 @@
   .pop-sitio .pop-info:hover{background:var(--uva-hondo)}
   /* destello al enlazar tarjeta ⇄ mapa */
   @keyframes cardflash{0%{box-shadow:0 0 0 0 rgba(44,110,120,0)}18%{box-shadow:0 0 0 4px rgba(44,110,120,.45),var(--sombra)}100%{box-shadow:var(--sombra-s)}}
-  .card.flash{animation:cardflash 1.7s ease}
+  .card.flash,.mar.flash{animation:cardflash 1.7s ease}
   @keyframes mkflash{0%,100%{transform:rotate(-45deg) scale(1)}45%{transform:rotate(-45deg) scale(1.4)}}
   .mk-sitio.flash{animation:mkflash .6s ease 2;box-shadow:0 0 0 5px rgba(44,110,120,.35),0 2px 6px rgba(30,40,34,.4);z-index:9}
   .fuel-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
@@ -675,7 +675,6 @@
       <button type="button" class="chip" data-loc="arriondas" aria-pressed="false">🛶 Arriondas</button>
     </div>
     <div class="clima-now" id="clima-now"><span class="spin">⏳</span> Cargando el tiempo…</div>
-    <div class="mar" id="mar"><span class="spin">⏳</span> Mirando la mar…</div>
     <h3 style="font-size:18px;margin:4px 2px 8px">Próximos días</h3>
     <div class="forecast" id="forecast"></div>
     <div class="dia-panel" id="dia-panel">
@@ -690,6 +689,7 @@
         </div>
       </div>
     </div>
+    <div class="mar" id="mar"><span class="spin">⏳</span> Mirando la mar…</div>
 
     <div class="sec-head" style="margin-top:26px"><span class="eyebrow">se comenta</span><h2>Noticias recientes</h2></div>
     <p class="sec-sub">Lo último sobre el Descenso del Sella y Ribadesella.</p>
@@ -1208,11 +1208,13 @@ function cerrarDiaPanel(){
   _panel().classList.remove('open');
   document.querySelectorAll('#forecast .dia.sel').forEach(x=>x.classList.remove('sel'));
   DIA_ABIERTO=null;
+  pintaMar(hoyISO());                                  // sin día elegido, los bufones vuelven a hoy
 }
 function abrirDiaPanel(iso,card){
   if(!HOURLY)return;
   if(DIA_ABIERTO===iso){ cerrarDiaPanel(); return; }   // toggle: volver a tocar cierra
   DIA_ABIERTO=iso;
+  pintaMar(iso);                                       // los bufones siguen al día elegido
   document.querySelectorAll('#forecast .dia.sel').forEach(x=>x.classList.remove('sel'));
   if(card)card.classList.add('sel');
 
@@ -1349,8 +1351,9 @@ function pintaClimaPlan(){
   });
 }
 
-/* ============ ¿SOPLAN HOY LOS BUFONES? (marea + mar de fondo) ============ */
-let marLoaded=false;
+/* ============ ¿SOPLAN LOS BUFONES? (marea + mar de fondo) ============
+   Sigue al día que elijas en la tira de "Próximos días". */
+let marLoaded=false, MARINA=null;
 function pleamares(h,dia){          // máximos locales del nivel del mar de ese día
   const out=[];
   for(let i=1;i<h.time.length-1;i++){
@@ -1361,29 +1364,53 @@ function pleamares(h,dia){          // máximos locales del nivel del mar de ese
   }
   return out;
 }
+/* null = la previsión del oleaje aún no llega a ese día (alcanza ~10 días,
+   menos que los 16 del tiempo: los últimos vienen a medias o vacíos) */
+function swellDelDia(h,dia){
+  const v=[];
+  for(let i=0;i<h.time.length;i++)
+    if(h.time[i].startsWith(dia) && h.swell_wave_height[i]!=null) v.push(h.swell_wave_height[i]);
+  return v.length<12 ? null : Math.max(...v);
+}
 function juzgaBufones(s){           // hacen falta las dos cosas: pleamar Y mar de fondo
   if(s>=2)   return ['si','🌊 ¡Rugen fuerte!','Mar de fondo de '+s.toFixed(1)+' m: en la pleamar es un espectáculo.'];
   if(s>=1.2) return ['si','💦 Sí soplan','Con '+s.toFixed(1)+' m de mar de fondo, en la pleamar escupen bien.'];
   if(s>=0.8) return ['quiza','🤏 Flojito','Solo '+s.toFixed(1)+' m de mar de fondo: alguno escupirá, pero sin fuegos artificiales.'];
-  return ['no','😴 Hoy no','Mar en calma ('+s.toFixed(1)+' m): no soplan. Cambiad los bufones por playa.'];
+  return ['no','😴 Ese día no','Mar en calma ('+s.toFixed(1)+' m): no soplan. Cambiad los bufones por playa.'];
+}
+function etiquetaDia(iso){
+  if(iso===hoyISO()) return 'hoy';
+  if(diasHasta(iso)===1) return 'mañana';
+  const dt=new Date(iso+'T00:00');
+  return 'el '+DIAS_LARGO[dt.getDay()]+' '+dt.getDate();
+}
+function pintaMar(iso){
+  if(!MARINA)return;                // aún cargando: ya se pintará al llegar
+  const box=document.getElementById('mar'), h=MARINA, et=etiquetaDia(iso);
+  const swell=swellDelDia(h,iso);
+  if(swell===null){
+    box.innerHTML=`<h3>🌊 Bufones de Pría · ${et}</h3>
+      <div class="m-est">🔭 Todavía no se sabe</div>
+      <div class="m-sub">La previsión del mar llega a unos 10 días vista y aún no alcanza ese día. Vuelve a mirarlo cuando se acerque.</div>`;
+    flash(box,1200); return;
+  }
+  const [cls,tit,sub]=juzgaBufones(swell);
+  const pm=pleamares(h,iso);
+  box.innerHTML=`<h3>🌊 ¿Soplan los Bufones de Pría <b>${et}</b>?</h3>
+    <div class="m-est ${cls}">${tit}</div>
+    <div class="m-sub">${sub}</div>
+    ${pm.length?`<div class="m-pleas">${pm.map(i=>`<span>🌊 Pleamar ${h.time[i].slice(11,16)}</span>`).join('')}</div>`:''}
+    <div class="m-sub" style="margin-top:9px;opacity:.7">Ve en la pleamar: con marea baja no soplan aunque haya olas. Toca otro día arriba para consultarlo.</div>`;
+  flash(box,1200);
 }
 async function cargarMar(){
   if(marLoaded)return; marLoaded=true;
   const box=document.getElementById('mar');
   try{
     const u='https://marine-api.open-meteo.com/v1/marine?latitude=43.4584&longitude=-4.9798'+
-      '&hourly=sea_level_height_msl,swell_wave_height&timezone=Europe%2FMadrid&forecast_days=7';
-    const h=JSON.parse(await grab(u)).hourly;
-    const hoy=isoLocal(new Date());
-    let swell=0;
-    for(let i=0;i<h.time.length;i++) if(h.time[i].startsWith(hoy)) swell=Math.max(swell,h.swell_wave_height[i]??0);
-    const [cls,tit,sub]=juzgaBufones(swell);
-    const pm=pleamares(h,hoy);
-    box.innerHTML=`<h3>🌊 ¿Soplan hoy los Bufones de Pría?</h3>
-      <div class="m-est ${cls}">${tit}</div>
-      <div class="m-sub">${sub}</div>
-      ${pm.length?`<div class="m-pleas">${pm.map(i=>`<span>🌊 Pleamar ${h.time[i].slice(11,16)}</span>`).join('')}</div>`:''}
-      <div class="m-sub" style="margin-top:9px;opacity:.7">Ve en la pleamar: con marea baja no soplan aunque haya olas.</div>`;
+      '&hourly=sea_level_height_msl,swell_wave_height&timezone=Europe%2FMadrid&forecast_days=16';
+    MARINA=JSON.parse(await grab(u)).hourly;
+    pintaMar(DIA_ABIERTO||hoyISO());
   }catch(e){
     marLoaded=false;
     box.innerHTML='🌊 No se pudo consultar la mar. <button class="btn btn-s" id="re-mar" style="padding:4px 12px">🔄 Reintentar</button>';
@@ -1630,6 +1657,12 @@ if(location.search.includes('selftest')){
            sea_level_height_msl:[0,2,1,0,9]};
   ok(JSON.stringify(pleamares(h,'2026-07-25'))==='[1]','pleamares: pilla el máximo y no se va a otro día');
   ok(juzgaBufones(2.5)[0]==='si' && juzgaBufones(0.3)[0]==='no','bufones: veredicto por mar de fondo');
+  const hm={time:[],swell_wave_height:[]};
+  for(let i=0;i<24;i++){ hm.time.push('2026-07-25T'+String(i).padStart(2,'0')+':00'); hm.swell_wave_height.push(i===7?1.8:0.9); }
+  hm.time.push('2026-07-26T00:00'); hm.swell_wave_height.push(2.2);      // día a medias: solo 1 hora
+  ok(swellDelDia(hm,'2026-07-25')===1.8,'swellDelDia: coge el máximo del día');
+  ok(swellDelDia(hm,'2026-07-26')===null,'swellDelDia: null si la previsión no llega (no inventa veredicto)');
+  ok(etiquetaDia(hoyISO())==='hoy','etiquetaDia: hoy');
   ok(Math.round(haversine(CASA.lat,CASA.lon,43.3350,-4.9681)*10)/10<=4,'haversine: Benia está a <4 km de la casa');
   ok(isoLocal(new Date('2026-07-25T00:30:00'))==='2026-07-25','isoLocal: la fecha local no se va al día anterior');
   ok(diasHasta(hoyISO())===0 && diasHasta('2026-07-22')===Math.round((new Date('2026-07-22T00:00')-new Date(hoyISO()+'T00:00'))/864e5),
