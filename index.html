@@ -11,6 +11,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛶</text></svg>">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sella 2026">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
   :root{
     /* nombres heredados por el JS — remapeados a una paleta "Asturias" editorial */
@@ -62,6 +68,8 @@
   .aurora{position:absolute;inset:-20% -10% 0;z-index:0;overflow:hidden;pointer-events:none;
     filter:blur(52px) saturate(1.2)}
   .aurora span{position:absolute;display:block;border-radius:50%;mix-blend-mode:screen;will-change:transform,opacity}
+  /* 4 blobs con blur animados se comen la batería: se paran al salir de pantalla */
+  .aurora.quieta span{animation-play-state:paused}
   .aurora span:nth-child(1){width:460px;height:460px;left:-8%;top:-30%;opacity:.6;
     background:radial-gradient(circle,#37B0A2,transparent 66%);animation:aur1 19s ease-in-out infinite alternate}
   .aurora span:nth-child(2){width:420px;height:420px;right:-10%;top:-24%;opacity:.5;
@@ -173,7 +181,10 @@
   .plan-base .dist span{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:4px 11px;font-size:11.5px;font-weight:700;color:#EBE6D6}
   .plan-dia{background:var(--papel-card);border:1px solid var(--papel-linea);border-radius:var(--radio);box-shadow:var(--sombra-s);margin-bottom:16px;overflow:hidden}
   .plan-dia.evt{border-color:var(--rojo);box-shadow:0 0 0 1.5px var(--rojo) inset,var(--sombra-s)}
-  .pd-head{display:flex;align-items:center;gap:14px;padding:15px 18px 13px;border-bottom:1px solid var(--papel-linea)}
+  .pd-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:15px 18px 13px;border-bottom:1px solid var(--papel-linea)}
+  /* el bloque del título es el div que no es ni el número ni el clima:
+     con flex-basis se queda ancho y empuja el clima a otra línea en pantallas estrechas */
+  .pd-head>div:not(.pd-num):not(.pd-clima){flex:1 1 150px;min-width:0}
   .pd-num{flex:none;text-align:center;font-family:'Fraunces';font-weight:600;font-size:33px;line-height:1;color:var(--rojo);letter-spacing:-.02em}
   .pd-num small{display:block;font-family:'Hanken Grotesk';font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--tinta-suave);margin-top:3px}
   .pd-head h3{font-size:19px;line-height:1.15}
@@ -355,6 +366,83 @@
   footer{ text-align:center;font-size:12px;color:var(--tinta-suave);font-weight:500;padding:26px 16px 6px;line-height:1.7}
   footer b{color:var(--tinta);font-weight:700;font-family:'Fraunces'}
 
+  /* ---------- PWA / OFFLINE / COMPARTIR ---------- */
+  .offline-bar{position:fixed;left:0;right:0;top:0;z-index:1300;background:var(--amarillo);color:#3B2A08;
+    font-size:12.5px;font-weight:800;text-align:center;padding:6px 12px;letter-spacing:.02em;
+    transform:translateY(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1)}
+  .offline-bar.on{transform:none}
+  .hero-acc{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .hero-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.10);
+    border:1px solid rgba(255,255,255,.22);color:#F1ECDD;border-radius:999px;padding:7px 14px;
+    font-family:'Hanken Grotesk';font-weight:700;font-size:12.5px;cursor:pointer;backdrop-filter:blur(4px);
+    transition:background .15s}
+  .hero-btn:hover{background:rgba(255,255,255,.18)}
+  .hero-btn.dest{background:var(--amarillo);border-color:var(--amarillo);color:#33240A}
+  .hero-btn.dest:hover{background:#D49B33}
+
+  /* ---------- PLAN: hoy, A/B, hechos, clima ---------- */
+  .plan-dia.hoy{border-color:var(--verde);box-shadow:0 0 0 2px var(--verde) inset,var(--sombra)}
+  .pd-hoy{background:var(--verde);color:#fff;font-size:10px;font-weight:800;letter-spacing:.12em;
+    text-transform:uppercase;border-radius:5px;padding:2px 8px;margin-left:8px;vertical-align:3px}
+  .pd-clima{display:flex;align-items:center;gap:5px;margin-left:auto;flex:none;text-align:right;
+    font-size:12.5px;font-weight:700;color:var(--tinta-suave);white-space:nowrap}
+  .pd-clima .pc-i{font-size:20px}
+  .pd-clima b{font-family:'Fraunces';font-size:15px;color:var(--tinta)}
+  .pd-clima .pc-ll{color:var(--uva);font-weight:700;font-size:11px}
+  .pd-sol{font-size:11.5px;font-weight:600;color:var(--tinta-suave);padding:0 18px 10px;letter-spacing:.01em}
+  .ab{display:flex;gap:6px;padding:11px 18px 0}
+  .ab button{flex:1;border:1px solid var(--papel-linea);background:transparent;color:var(--tinta-suave);
+    border-radius:9px;padding:8px 10px;font-family:'Hanken Grotesk';font-weight:700;font-size:12.5px;
+    cursor:pointer;transition:all .15s;text-align:left;line-height:1.3}
+  .ab button:hover{border-color:var(--tinta-suave);color:var(--tinta)}
+  .ab button.sel{background:var(--uva);border-color:var(--uva);color:#fff}
+  .ab button small{display:block;font-weight:600;font-size:10.5px;opacity:.75;margin-top:2px}
+  .pd-row.oculto{display:none}
+  .pd-tick{flex:none;width:19px;height:19px;margin-top:1px;border-radius:50%;border:1.5px solid var(--papel-linea);
+    background:#fff;cursor:pointer;display:grid;place-items:center;font-size:10px;color:#fff;padding:0;
+    transition:all .15s}
+  .pd-tick:hover{border-color:var(--verde)}
+  .pd-row.hecho .pd-tick{background:var(--verde);border-color:var(--verde)}
+  .pd-row.hecho .pd-tick::after{content:"✓"}
+  .pd-row.hecho{opacity:.45}
+  .pd-row.hecho .pd-txt{text-decoration:line-through;text-decoration-color:var(--tinta-suave)}
+  .pd-txt{flex:1;min-width:0}
+  .lnk{color:var(--uva-hondo);cursor:pointer;border-bottom:1.5px dotted var(--uva);font-weight:700;
+    transition:background .14s}
+  .lnk:hover{background:rgba(44,110,120,.10)}
+
+  /* ---------- BUFONES / MAR ---------- */
+  .mar{background:var(--papel-card);border:1px solid var(--papel-linea);border-left:3px solid var(--uva);
+    border-radius:12px;padding:14px 16px;margin-bottom:18px;box-shadow:var(--sombra-s)}
+  .mar h3{font-size:16px;margin-bottom:3px}
+  .mar .m-est{font-family:'Fraunces';font-weight:600;font-size:18px;margin:6px 0 4px}
+  .mar .m-est.si{color:var(--verde)} .mar .m-est.quiza{color:var(--amarillo)} .mar .m-est.no{color:var(--rojo)}
+  .mar .m-sub{font-size:12.5px;color:var(--tinta-suave);font-weight:600;line-height:1.5}
+  .mar .m-pleas{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+  .mar .m-pleas span{background:rgba(44,110,120,.10);color:var(--uva-hondo);border-radius:5px;padding:3px 9px;
+    font-size:11.5px;font-weight:700}
+
+  /* ---------- FAVORITOS / DISTANCIA ---------- */
+  .fav{position:absolute;top:9px;right:9px;z-index:2;width:33px;height:33px;border-radius:50%;border:none;
+    background:rgba(20,28,22,.42);backdrop-filter:blur(4px);color:#fff;font-size:15px;cursor:pointer;
+    display:grid;place-items:center;transition:transform .16s,background .16s;line-height:1}
+  .fav:hover{transform:scale(1.12);background:rgba(20,28,22,.62)}
+  .fav.si{background:var(--amarillo);color:#fff}
+  .dist-casa{color:var(--verde);font-weight:700}
+
+  /* ---------- SORTEO: grupos ---------- */
+  .modo-row{display:flex;gap:6px;margin-bottom:14px}
+  .grupos-cfg{display:flex;align-items:center;gap:10px;margin-bottom:14px;font-weight:600;font-size:14px}
+  .grupos-cfg input{width:64px;border:1px solid var(--papel-linea);border-radius:9px;padding:9px 11px;
+    font-family:'Hanken Grotesk';font-weight:700;font-size:15px;color:var(--tinta);background:#fff}
+  .grupos-out{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:4px}
+  @media(min-width:480px){.grupos-out{grid-template-columns:1fr 1fr}}
+  .grupo{background:linear-gradient(160deg,var(--pino2),var(--pino));border:1px solid rgba(255,255,255,.14);
+    border-radius:12px;padding:13px 15px;box-shadow:var(--sombra-s)}
+  .grupo b{display:block;font-family:'Hanken Grotesk';font-size:10.5px;font-weight:700;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--amarillo);margin-bottom:6px}
+  .grupo span{display:block;font-family:'Fraunces';font-weight:500;font-size:16px;color:#FBF7EC;line-height:1.5}
+
   @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
   @keyframes pop{0%{transform:scale(.5) rotate(-2deg);opacity:0}60%{transform:scale(1.12) rotate(-2deg)}100%{transform:scale(1) rotate(-2deg);opacity:1}}
   @keyframes up{to{transform:translateY(-260px) rotate(12deg);opacity:0}}
@@ -366,8 +454,10 @@
 </head>
 <body>
 
+<div class="offline-bar" id="offline-bar" role="status">📴 Sin conexión · viendo los últimos datos guardados</div>
+
 <header class="hero">
-  <div class="aurora" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+  <div class="aurora" id="aurora" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
   <div class="wrap">
     <div class="hero-top">
       <span class="kicker">Guía de viaje<span class="k-dot"></span>Asturias</span>
@@ -378,6 +468,11 @@
     <div class="fechas">
       <span class="pill-fecha">📅 <b>22–26 julio</b></span>
       <span class="pill-fecha" id="countdown">…</span>
+    </div>
+    <div class="hero-acc">
+      <button class="hero-btn dest" id="btn-instalar" hidden>⬇️ Instalar app</button>
+      <button class="hero-btn" id="btn-compartir">📤 Compartir</button>
+      <button class="hero-btn" id="btn-cal">📅 Guardar el Descenso</button>
     </div>
   </div>
   <svg class="montes" viewBox="0 0 720 120" preserveAspectRatio="none" aria-hidden="true">
@@ -393,17 +488,23 @@
   <section class="tab on" id="tab-explora">
     <div class="sec-head"><span class="eyebrow">nuestra ruta</span><h2>Qué ver y dónde comer</h2></div>
     <p class="sec-sub">Los mejores rincones y sidrerías de la zona. Toca para llegar en un clic.</p>
-    <div class="filtros" id="f-tipo">
-      <span class="chip act" data-tipo="todo">🌍 Todo</span>
-      <span class="chip" data-tipo="ver">📸 Visitar</span>
-      <span class="chip" data-tipo="comer">🍽️ Comer</span>
+    <div class="filtros" id="f-tipo" role="group" aria-label="Tipo de sitio">
+      <button type="button" class="chip act" data-tipo="todo" aria-pressed="true">🌍 Todo</button>
+      <button type="button" class="chip" data-tipo="ver" aria-pressed="false">📸 Visitar</button>
+      <button type="button" class="chip" data-tipo="comer" aria-pressed="false">🍽️ Comer</button>
+      <button type="button" class="chip" data-tipo="fav" aria-pressed="false">⭐ Favoritos</button>
     </div>
-    <div class="filtros" id="f-pueblo">
-      <span class="chip act uva" data-pueblo="todos">Todos</span>
-      <span class="chip" data-pueblo="Ribadesella">Ribadesella</span>
-      <span class="chip" data-pueblo="Arriondas">Arriondas</span>
-      <span class="chip" data-pueblo="Cangas de Onís">Cangas de Onís</span>
-      <span class="chip" data-pueblo="Alrededores">Alrededores</span>
+    <div class="filtros" id="f-pueblo" role="group" aria-label="Zona">
+      <button type="button" class="chip act uva" data-pueblo="todos" aria-pressed="true">Todos</button>
+      <button type="button" class="chip" data-pueblo="Ribadesella" aria-pressed="false">Ribadesella</button>
+      <button type="button" class="chip" data-pueblo="Arriondas" aria-pressed="false">Arriondas</button>
+      <button type="button" class="chip" data-pueblo="Cangas de Onís" aria-pressed="false">Cangas de Onís</button>
+      <button type="button" class="chip" data-pueblo="Alrededores" aria-pressed="false">Alrededores</button>
+    </div>
+    <div class="filtros" id="f-orden" role="group" aria-label="Ordenar">
+      <button type="button" class="chip act verde" data-orden="normal" aria-pressed="true">📋 Por defecto</button>
+      <button type="button" class="chip" data-orden="cerca" aria-pressed="false">🏡 Más cerca de la casa</button>
+      <button type="button" class="chip" data-orden="nota" aria-pressed="false">★ Mejor valorados</button>
     </div>
     <input class="buscar" id="buscador" placeholder="🔎 Buscar (cachopo, playa, cueva…)">
     <div id="map-sitios"></div>
@@ -433,83 +534,114 @@
     </div>
 
     <!-- MIÉRCOLES 22 -->
-    <div class="plan-dia">
+    <div class="plan-dia" data-iso="2026-07-22" data-dia="22">
       <div class="pd-head">
         <div class="pd-num">22<small>mié</small></div>
         <div><h3>Llegada + Cangas de Onís</h3><div class="pd-sub">Día suave para instalarse y coger el ritmo asturiano</div></div>
+        <div class="pd-clima"></div>
+      </div>
+      <div class="pd-sol"></div>
+      <div class="ab" data-dia="22">
+        <button type="button" data-op="a">A · Poza del Dobra<small>Baño en la Olla de San Vicente</small></button>
+        <button type="button" data-op="b">B · Mirador del Urriellu<small>Atardecer en Poo de Cabrales</small></button>
       </div>
       <div class="pd-body">
-        <div class="pd-row"><span class="pd-hora">12:00</span><span>Llegada a la casa, instalarse y reparto de habitaciones (sorteo en la app si hay pelea 🎈).</span></div>
-        <div class="pd-row"><span class="pd-hora">14:00</span><span>Comer en Cangas. Ojo: miércoles cierran El Molín, Asturcelta y La Joguera → ir a <b>Bar Los Robles</b> (la mejor sidra escanciada) o <b>La Sifonería</b> (raciones y vermú, con terraza).</span></div>
-        <div class="pd-row"><span class="pd-hora">16:30</span><span>Paseo por Cangas: <b>Puente Romano</b> con la Cruz de la Victoria (la foto), casco y tiendas de quesos y sidra para aprovisionar la casa.</span></div>
-        <div class="pd-row"><span class="pd-hora">19:00</span><span><span class="op">A</span>Baño de bienvenida en la <b>Olla de San Vicente</b> (poza turquesa, a 10 min de Cangas — a última hora el parking se vacía). <span class="op b">B</span>Atardecer en el <b>Mirador del Pozo de la Oración</b> (Poo de Cabrales, 20 min): el Naranjo de Bulnes de frente. <a href="https://www.google.com/maps/search/?api=1&query=Mirador+Pozo+de+la+Oracion+Poo+de+Cabrales" target="_blank" rel="noopener">Maps</a></span></div>
-        <div class="pd-row"><span class="pd-hora">21:30</span><span>Cena tranquila en la casa: primera espicha con lo comprado en Cangas.</span></div>
+        <div class="pd-row" data-id="22-1"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">12:00</span><span class="pd-txt">Llegada a la casa, instalarse y reparto de habitaciones (usa el <b class="lnk" data-tab="sorteo">sorteo</b> si hay pelea 🎈).</span></div>
+        <div class="pd-row" data-id="22-2"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">14:00</span><span class="pd-txt">Comer en Cangas. Ojo: miércoles cierran El Molín, Asturcelta y La Joguera → ir a <b class="lnk" data-sitio="Bar Los Robles">Bar Los Robles</b> (la mejor sidra escanciada) o <b class="lnk" data-sitio="La Sifonería">La Sifonería</b> (raciones y vermú, con terraza).</span></div>
+        <div class="pd-row" data-id="22-3"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">16:30</span><span class="pd-txt">Paseo por Cangas: <b class="lnk" data-sitio="Puente Romano de Cangas">Puente Romano</b> con la Cruz de la Victoria (la foto), casco y tiendas de quesos y sidra para aprovisionar la casa.</span></div>
+        <div class="pd-row" data-id="22-4" data-op="a"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">19:00</span><span class="pd-txt"><span class="op">A</span>Baño de bienvenida en la <b class="lnk" data-sitio="Olla de San Vicente">Olla de San Vicente</b> (poza turquesa, a 10 min de Cangas — a última hora el parking se vacía).</span></div>
+        <div class="pd-row" data-id="22-5" data-op="b"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">19:00</span><span class="pd-txt"><span class="op b">B</span>Atardecer en el <b class="lnk" data-sitio="Mirador del Pozo de la Oración">Mirador del Pozo de la Oración</b> (Poo de Cabrales, 20 min): el Naranjo de Bulnes de frente.</span></div>
+        <div class="pd-row" data-id="22-6"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">21:30</span><span class="pd-txt">Cena tranquila en la casa: primera espicha con lo comprado en Cangas.</span></div>
         <div class="pd-tip">💡 <b>Reservas del día 1:</b> nada más llegar, reservad ya la cena del sábado (El Molín de la Pedrera) y, si tocan Lagos el jueves, mirad el bus de Covadonga.</div>
       </div>
     </div>
 
     <!-- JUEVES 23 -->
-    <div class="plan-dia">
+    <div class="plan-dia" data-iso="2026-07-23" data-dia="23">
       <div class="pd-head">
         <div class="pd-num">23<small>jue</small></div>
         <div><h3>Día grande de Picos de Europa</h3><div class="pd-sub">Elegid una: las dos son top, pero mañana toca remar</div></div>
+        <div class="pd-clima"></div>
+      </div>
+      <div class="pd-sol"></div>
+      <div class="ab" data-dia="23">
+        <button type="button" data-op="a">A · Lagos de Covadonga<small>Madrugón, Belbín y la Santina</small></button>
+        <button type="button" data-op="b">B · Ruta del Cares<small>La Garganta Divina, 20 min de casa</small></button>
       </div>
       <div class="pd-body">
-        <div class="pd-row"><span class="pd-hora">7:30</span><span><span class="op">A</span><b>Lagos de Covadonga:</b> madrugón para subir en coche antes de las 8:00 (después, bus obligatorio desde Covadonga). Vuelta Enol–Ercina por la <b>majada de Belbín</b> (queso Gamonéu de puerto), parada en el <b>Mirador de la Reina</b> y bajada al <b>Santuario de Covadonga</b> con la Santa Cueva.</span></div>
-        <div class="pd-row"><span class="pd-hora">8:00</span><span><span class="op b">B</span><b>Ruta del Cares</b> desde Poncebos (a solo 20 min de la casa): la Garganta Divina. No hace falta hacerla entera, con llegar a Los Collaos (~2 h ida) ya flipas. Lleva agua y gorra: no hay sombra.</span></div>
-        <div class="pd-row"><span class="pd-hora">14:30</span><span>Comer según opción: <span class="op">A</span>en Cangas — <b>Taberna Asturcelta</b> o <b>El Molín de la Pedrera</b> (jueves abren ambos). <span class="op b">B</span>en <b>Arenas de Cabrales</b>, sidrería con queso Cabrales D.O.P. <a href="https://www.google.com/maps/search/?api=1&query=sidrerias+Arenas+de+Cabrales" target="_blank" rel="noopener">Maps</a></span></div>
-        <div class="pd-row"><span class="pd-hora">17:30</span><span><span class="op b">B</span>De vuelta, visita a la <b>Cueva del Queso de Cabrales</b> en Arenas (visita guiada con cata, ~45 min). <a href="https://www.google.com/maps/search/?api=1&query=Cueva+del+Queso+Cabrales+Arenas" target="_blank" rel="noopener">Maps</a></span></div>
-        <div class="pd-row"><span class="pd-hora">21:00</span><span>Cena sin complicarse: <b>El Horru Encantau</b> (Cangas, abre todos los días) o en la casa. Pronto a la cama: mañana, el Sella.</span></div>
+        <div class="pd-row" data-id="23-1" data-op="a"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">7:30</span><span class="pd-txt"><span class="op">A</span><b class="lnk" data-sitio="Lagos de Covadonga">Lagos de Covadonga</b>: madrugón para subir en coche antes de las 8:00 (después, bus obligatorio desde Covadonga). Vuelta Enol–Ercina por la <b>majada de Belbín</b> (Gamonéu de puerto) y parada en el <b class="lnk" data-sitio="Mirador de la Reina">Mirador de la Reina</b>.</span></div>
+        <div class="pd-row" data-id="23-2" data-op="a"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">12:30</span><span class="pd-txt"><span class="op">A</span>Bajada al <b class="lnk" data-sitio="Santuario de Covadonga">Santuario de Covadonga</b>: basílica rosa y Santa Cueva. Aparca detrás del museo y te ahorras escaleras.</span></div>
+        <div class="pd-row" data-id="23-3" data-op="a"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">14:30</span><span class="pd-txt"><span class="op">A</span>Comer en Cangas: <b class="lnk" data-sitio="Taberna Asturcelta">Taberna Asturcelta</b> o <b class="lnk" data-sitio="El Molín de la Pedrera">El Molín de la Pedrera</b> (jueves abren los dos).</span></div>
+        <div class="pd-row" data-id="23-4" data-op="b"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">8:00</span><span class="pd-txt"><span class="op b">B</span><b class="lnk" data-sitio="Ruta del Cares">Ruta del Cares</b> desde <b class="lnk" data-sitio="Poncebos">Poncebos</b>: la Garganta Divina. No hace falta hacerla entera, con llegar a Los Collaos (~2 h ida) ya flipas. Lleva agua y gorra: no hay sombra.</span></div>
+        <div class="pd-row" data-id="23-5" data-op="b"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">14:30</span><span class="pd-txt"><span class="op b">B</span>Comer en <b class="lnk" data-sitio="Cueva del Queso de Cabrales">Arenas de Cabrales</b>: sidrería con queso Cabrales D.O.P. recién sacado de la cueva.</span></div>
+        <div class="pd-row" data-id="23-6" data-op="b"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">17:30</span><span class="pd-txt"><span class="op b">B</span>De vuelta, la <b class="lnk" data-sitio="Cueva del Queso de Cabrales">Cueva del Queso de Cabrales</b>: visita guiada con cata, ~45 min.</span></div>
+        <div class="pd-row" data-id="23-7"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">21:00</span><span class="pd-txt">Cena sin complicarse: <b class="lnk" data-sitio="El Horru Encantau">El Horru Encantau</b> (Cangas, abre todos los días) o en la casa. Pronto a la cama: mañana, el Sella.</span></div>
         <div class="pd-tip">⚠️ <b>No os machaquéis:</b> si hacéis el Cares completo (12 km), el viernes se rema con agujetas. Versión corta y tan contentos.</div>
       </div>
     </div>
 
     <!-- VIERNES 24 -->
-    <div class="plan-dia evt">
+    <div class="plan-dia evt" data-iso="2026-07-24" data-dia="24">
       <div class="pd-head">
         <div class="pd-num" style="color:var(--rojo)">24<small>vie</small></div>
         <div><h3>🛶 Descenso del Sella — 12:00</h3><div class="pd-sub">El día que da nombre al viaje: Arriondas → Ribadesella</div></div>
+        <div class="pd-clima"></div>
       </div>
+      <div class="pd-sol"></div>
       <div class="pd-body">
-        <div class="pd-row"><span class="pd-hora">9:30</span><span>Desayuno fuerte en la casa. Preparar: bañador puesto, escarpines o deportivas viejas, crema, gorra y <b>bote estanco</b> para el móvil.</span></div>
-        <div class="pd-row"><span class="pd-hora">10:50</span><span>Salir hacia <b>Arriondas</b> (~35 min) y presentarse en la empresa con margen.</span></div>
-        <div class="pd-row"><span class="pd-hora">12:00</span><span><b>¡Al agua!</b> Bajada de ~3-4 h con paradas para el baño y el bocata. El río hace el trabajo: remar poco y reírse mucho.</span></div>
-        <div class="pd-row"><span class="pd-hora">16:30</span><span>Comida-merienda de piragüista en <b>Ribadesella</b>: <b>Sidrería Carroceu</b> (marisco con vistas a la ría) o <b>Rompeolas</b> (raciones bestiales). Sin prisa, que el día es vuestro.</span></div>
-        <div class="pd-row"><span class="pd-hora">18:30</span><span>Paseo por el puerto y el casco viejo, <b>Escalera de Colores</b> y chapuzón-siesta en la <b>playa de Santa Marina</b>.</span></div>
-        <div class="pd-row"><span class="pd-hora">21:30</span><span>Sidras al atardecer en el paseo o cena ligera en <b>D'Asturianu</b> antes de volver a la casa.</span></div>
+        <div class="pd-row" data-id="24-1"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">9:30</span><span class="pd-txt">Desayuno fuerte en la casa. Preparad: bañador puesto, escarpines, crema, gorra y bote estanco para el móvil.</span></div>
+        <div class="pd-row" data-id="24-2"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">10:50</span><span class="pd-txt">Salir hacia <b class="lnk" data-sitio="Salida del Descenso">Arriondas</b> (~35 min) y presentarse en la empresa con margen.</span></div>
+        <div class="pd-row" data-id="24-3"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">12:00</span><span class="pd-txt"><b>¡Al agua!</b> Bajada de ~3-4 h con paradas para el baño y el bocata. El río hace el trabajo: remar poco y reírse mucho.</span></div>
+        <div class="pd-row" data-id="24-4"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">16:30</span><span class="pd-txt">Comida-merienda de piragüista en <b class="lnk" data-sitio="Ribadesella">Ribadesella</b>: <b class="lnk" data-sitio="Sidrería Carroceu">Sidrería Carroceu</b> (marisco con vistas a la ría) o <b class="lnk" data-sitio="Rompeolas Sidrería-Grill">Rompeolas</b> (raciones bestiales).</span></div>
+        <div class="pd-row" data-id="24-5"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">18:30</span><span class="pd-txt">Paseo por el puerto y el casco viejo, <b class="lnk" data-sitio="Escalera de Colores">Escalera de Colores</b> y chapuzón-siesta en la playa de Santa Marina.</span></div>
+        <div class="pd-row" data-id="24-6"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">21:30</span><span class="pd-txt">Sidras al atardecer en el paseo o cena ligera en <b class="lnk" data-sitio="D'Asturianu">D'Asturianu</b> antes de volver a la casa.</span></div>
         <div class="pd-tip">🛶 <b>Logística canoa:</b> casi todas las empresas recogen en Llovio o Ribadesella y devuelven al coche en Arriondas en bus. Confirmadlo al reservar para cuadrar la tarde.</div>
       </div>
     </div>
 
     <!-- SÁBADO 25 -->
-    <div class="plan-dia">
+    <div class="plan-dia" data-iso="2026-07-25" data-dia="25">
       <div class="pd-head">
         <div class="pd-num">25<small>sáb</small></div>
         <div><h3>Día de costa (o la revancha de Picos)</h3><div class="pd-sub">Playas únicas, Llanes y cena de despedida</div></div>
+        <div class="pd-clima"></div>
+      </div>
+      <div class="pd-sol"></div>
+      <div class="ab" data-dia="25">
+        <button type="button" data-op="a">A · Costa y playas<small>Gulpiyuri, Llanes y Torimbia</small></button>
+        <button type="button" data-op="b">B · Picos, la revancha<small>Lo que no hicisteis el jueves</small></button>
       </div>
       <div class="pd-body">
-        <div class="pd-row"><span class="pd-hora">10:00</span><span><span class="op">A</span><b>Ruta costera:</b> empezar por la <b>playa de Gulpiyuri</b> (la playa sin mar — pronto, que se llena) y los <b>Bufones de Pría</b> si hay marea alta.</span></div>
-        <div class="pd-row"><span class="pd-hora">12:30</span><span><span class="op">A</span><b>Llanes</b>: los <b>Cubos de la Memoria</b> en el puerto, casco viejo y tapeo-vermú por sus calles.</span></div>
-        <div class="pd-row"><span class="pd-hora">16:00</span><span><span class="op">A</span>Tarde de baño de verdad: <b>Torimbia</b> (la concha virgen más bonita, 15 min andando) o <b>playa de Vega</b> (más cómoda, con chiringuito).</span></div>
-        <div class="pd-row"><span class="pd-hora">10:00</span><span><span class="op b">B</span>La opción de Picos que no hicisteis el jueves (Lagos o Cares), o subir a <b>Bulnes</b> en funicular: pueblo sin coches con el Urriellu delante.</span></div>
-        <div class="pd-row"><span class="pd-hora">20:00</span><span>Atardecer en el <b>Mirador del Fitu</b> de camino a casa si vais con energía: mar y Picos a la vez.</span></div>
-        <div class="pd-row"><span class="pd-hora">21:30</span><span><b>Cena de despedida</b> (reservada el día 1): <b>El Molín de la Pedrera</b> en Cangas. Si el grupo quiere homenaje gordo, <b>Casa Marcial</b> (3⭐ Michelin) o <b>Arbidel</b> (1⭐, Ribadesella).</span></div>
-        <div class="pd-tip">🌊 <b>Bufones:</b> solo "soplan" con marea alta y mar de fondo — mirad la tabla de mareas antes; con mar en calma, saltáoslos y ganáis tiempo de playa.</div>
+        <div class="pd-row" data-id="25-1" data-op="a"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">10:00</span><span class="pd-txt"><span class="op">A</span>Empezar por la <b class="lnk" data-sitio="Playa de Gulpiyuri">playa de Gulpiyuri</b> (la playa sin mar — pronto, que se llena) y los <b class="lnk" data-sitio="Bufones de Pría">Bufones de Pría</b> si la mar acompaña.</span></div>
+        <div class="pd-row" data-id="25-2" data-op="a"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">12:30</span><span class="pd-txt"><span class="op">A</span><b>Llanes</b>: los <b class="lnk" data-sitio="Cubos de la Memoria">Cubos de la Memoria</b> en el puerto, casco viejo y tapeo-vermú por sus calles.</span></div>
+        <div class="pd-row" data-id="25-3" data-op="a"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">16:00</span><span class="pd-txt"><span class="op">A</span>Tarde de baño de verdad: <b class="lnk" data-sitio="Playa de Torimbia">Torimbia</b> (la concha virgen más bonita, 15 min andando) o <b class="lnk" data-sitio="Playa de Vega">playa de Vega</b> (más cómoda, con chiringuito).</span></div>
+        <div class="pd-row" data-id="25-4" data-op="b"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">8:00</span><span class="pd-txt"><span class="op b">B</span>La opción de Picos que no hicisteis el jueves: <b class="lnk" data-sitio="Lagos de Covadonga">Lagos</b> o <b class="lnk" data-sitio="Ruta del Cares">Cares</b>.</span></div>
+        <div class="pd-row" data-id="25-5" data-op="b"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">11:00</span><span class="pd-txt"><span class="op b">B</span>O subir a <b class="lnk" data-sitio="Bulnes">Bulnes</b> en funicular desde <b class="lnk" data-sitio="Poncebos">Poncebos</b>: pueblo sin coches con el Urriellu delante.</span></div>
+        <div class="pd-row" data-id="25-6"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">20:00</span><span class="pd-txt">Atardecer en el <b class="lnk" data-sitio="Mirador del Fitu">Mirador del Fitu</b> si vais con energía: mar y Picos a la vez.</span></div>
+        <div class="pd-row" data-id="25-7"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">21:30</span><span class="pd-txt"><b>Cena de despedida</b> (reservada el día 1): <b class="lnk" data-sitio="El Molín de la Pedrera">El Molín de la Pedrera</b>. Si el grupo quiere homenaje gordo, <b class="lnk" data-sitio="Casa Marcial">Casa Marcial</b> (3⭐) o <b class="lnk" data-sitio="Restaurante Arbidel">Arbidel</b> (1⭐).</span></div>
+        <div class="pd-tip">🌊 <b>Bufones:</b> solo rugen con marea alta y mar de fondo. El semáforo de la <b class="lnk" data-tab="clima">pestaña Tiempo</b> os dice si ese día merecen la pena.</div>
       </div>
     </div>
 
     <!-- DOMINGO 26 -->
-    <div class="plan-dia">
+    <div class="plan-dia" data-iso="2026-07-26" data-dia="26">
       <div class="pd-head">
         <div class="pd-num">26<small>dom</small></div>
         <div><h3>Últimos rincones y vuelta</h3><div class="pd-sub">Mañana cerquita de casa, comida y carretera por la tarde</div></div>
+        <div class="pd-clima"></div>
+      </div>
+      <div class="pd-sol"></div>
+      <div class="ab" data-dia="26">
+        <button type="button" data-op="a">A · La Cuevona<small>Cuevas del Agua, por Ribadesella</small></button>
+        <button type="button" data-op="b">B · Cuevona de Avín<small>Fauna glacial, a 5 min de casa</small></button>
       </div>
       <div class="pd-body">
-        <div class="pd-row"><span class="pd-hora">10:00</span><span>Recoger la casa y despedida del balcón. Parada en <b>Benia de Onís</b> a comprar <b>queso Gamonéu</b> para llevar a casa (se vende en la plaza). <a href="https://www.google.com/maps/search/?api=1&query=Benia+de+Onis+queso+Gamoneu" target="_blank" rel="noopener">Maps</a></span></div>
-        <div class="pd-row"><span class="pd-hora">11:00</span><span><span class="op">A</span><b>La Cuevona de Cuevas del Agua</b>: cruzar a pie el túnel de estalactitas que es la única entrada al pueblo (gratis, de camino si salís por Ribadesella). <span class="op b">B</span><b>Cuevona de Avín</b> y su fauna glacial, a 5 min de la casa. <a href="https://www.google.com/maps/search/?api=1&query=Cuevona+de+Avin+Onis" target="_blank" rel="noopener">Maps</a></span></div>
-        <div class="pd-row"><span class="pd-hora">13:00</span><span>Domingo es día de <b>mercado en Cangas de Onís</b>: última vuelta y comida de cierre — <b>La Joguera</b> (el cachopo pendiente, abre sábado y domingo) o <b>Bar Los Robles</b>.</span></div>
-        <div class="pd-row"><span class="pd-hora">16:30</span><span>Carretera y manta 🚗 — con el maletero oliendo a queso y sidra, como debe ser.</span></div>
-        <div class="pd-tip">⛽ <b>Antes de salir:</b> mirad la pestaña Gasolina y repostad en la más barata de la ruta.</div>
+        <div class="pd-row" data-id="26-1"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">10:00</span><span class="pd-txt">Recoger la casa y despedida del balcón. Parada en <b class="lnk" data-sitio="Benia de Onís">Benia de Onís</b> a comprar <b>queso Gamonéu</b> para llevar (se vende en la plaza).</span></div>
+        <div class="pd-row" data-id="26-2" data-op="a"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">11:00</span><span class="pd-txt"><span class="op">A</span><b class="lnk" data-sitio="La Cuevona de Cuevas">La Cuevona de Cuevas del Agua</b>: cruzar a pie el túnel de estalactitas que es la única entrada al pueblo. Gratis y de camino si salís por Ribadesella.</span></div>
+        <div class="pd-row" data-id="26-3" data-op="b"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">11:00</span><span class="pd-txt"><span class="op b">B</span><b class="lnk" data-sitio="Cuevona de Avín">Cuevona de Avín</b> y su fauna glacial, a 5 min de la casa: se ve en un rato y no obliga a desviarse.</span></div>
+        <div class="pd-row" data-id="26-4"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">13:00</span><span class="pd-txt">Domingo es día de <b>mercado en Cangas de Onís</b>: última vuelta y comida de cierre — <b class="lnk" data-sitio="La Joguera">La Joguera</b> (el cachopo pendiente, abre domingo) o <b class="lnk" data-sitio="Bar Los Robles">Bar Los Robles</b>.</span></div>
+        <div class="pd-row" data-id="26-5"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">16:30</span><span class="pd-txt">Carretera y manta 🚗 — con el maletero oliendo a queso y sidra, como debe ser.</span></div>
+        <div class="pd-tip">⛽ <b>Antes de salir:</b> mirad la <b class="lnk" data-tab="gas">pestaña Gasolina</b> y repostad en la más barata de la ruta.</div>
       </div>
     </div>
   </section>
@@ -518,11 +650,11 @@
   <section class="tab" id="tab-gas">
     <div class="sec-head"><span class="eyebrow">a repostar</span><h2>Gasolineras más baratas</h2></div>
     <p class="sec-sub">Precios oficiales del Ministerio, en tiempo real, en 20 km alrededor del recorrido.</p>
-    <div class="fuel-tabs" id="fuel-tabs">
-      <span class="chip act verde" data-fuel="g95">Gasolina 95</span>
-      <span class="chip" data-fuel="diesel">Diésel</span>
-      <span class="chip" data-fuel="g98">Gasolina 98</span>
-      <span class="chip" data-fuel="glp">GLP</span>
+    <div class="fuel-tabs" id="fuel-tabs" role="group" aria-label="Carburante">
+      <button type="button" class="chip act verde" data-fuel="g95" aria-pressed="true">Gasolina 95</button>
+      <button type="button" class="chip" data-fuel="diesel" aria-pressed="false">Diésel</button>
+      <button type="button" class="chip" data-fuel="g98" aria-pressed="false">Gasolina 98</button>
+      <button type="button" class="chip" data-fuel="glp" aria-pressed="false">GLP</button>
     </div>
     <div id="map"></div>
     <div class="leyenda">
@@ -537,11 +669,13 @@
   <!-- ================= TIEMPO + NOTICIAS ================= -->
   <section class="tab" id="tab-clima">
     <div class="sec-head"><span class="eyebrow">parte del día</span><h2>El tiempo</h2></div>
-    <div class="clima-toggle" id="clima-toggle">
-      <span class="chip act uva" data-loc="ribadesella">🏖️ Ribadesella</span>
-      <span class="chip" data-loc="arriondas">🛶 Arriondas</span>
+    <div class="clima-toggle" id="clima-toggle" role="group" aria-label="Localidad">
+      <button type="button" class="chip act uva" data-loc="casa" aria-pressed="true">🏡 La casa</button>
+      <button type="button" class="chip" data-loc="ribadesella" aria-pressed="false">🏖️ Ribadesella</button>
+      <button type="button" class="chip" data-loc="arriondas" aria-pressed="false">🛶 Arriondas</button>
     </div>
     <div class="clima-now" id="clima-now"><span class="spin">⏳</span> Cargando el tiempo…</div>
+    <div class="mar" id="mar"><span class="spin">⏳</span> Mirando la mar…</div>
     <h3 style="font-size:18px;margin:4px 2px 8px">Próximos días</h3>
     <div class="forecast" id="forecast"></div>
     <div class="dia-panel" id="dia-panel">
@@ -565,18 +699,28 @@
   <!-- ================= SORTEO ================= -->
   <section class="tab" id="tab-sorteo">
     <div class="sec-head"><span class="eyebrow">¡suerte!</span><h2>Sorteo del grupo</h2></div>
-    <p class="sec-sub">Mete los nombres y que decidan los globos. Repite las veces que quieras.</p>
+    <p class="sec-sub">Mete los nombres y que decidan los globos: elige a uno, o reparte al grupo en habitaciones y coches.</p>
     <div class="sorteo-box">
       <div class="add-row">
         <input id="name-input" placeholder="Nombre del aventurero…" autocomplete="off">
         <button class="btn btn-p" id="add-name">Añadir</button>
       </div>
       <div class="names" id="names-list"></div>
-      <div class="opt-row">
+      <div class="modo-row" id="modo-row" role="group" aria-label="Modo de sorteo">
+        <button type="button" class="chip act" data-modo="uno" aria-pressed="true">🎲 Elegir a uno</button>
+        <button type="button" class="chip" data-modo="grupos" aria-pressed="false">🛏️ Repartir en grupos</button>
+      </div>
+      <div class="opt-row" id="fila-descartar">
         <label class="switch"><input type="checkbox" id="opt-descartar"><span class="slider"></span></label>
         Descartar al ganador automáticamente
       </div>
+      <div class="grupos-cfg" id="grupos-cfg" hidden>
+        <label for="n-grupos">Repartir en</label>
+        <input id="n-grupos" type="number" min="2" max="10" value="3" inputmode="numeric">
+        <span id="grupos-lbl">grupos</span>
+      </div>
       <div class="winner-stage" id="winner-stage"></div>
+      <div class="grupos-out" id="grupos-out"></div>
       <button class="sortear-btn" id="sortear">🎈 ¡Sortear!</button>
       <div class="historial" id="historial" style="display:none">
         <h3>Ganadores</h3><ol id="hist-list"></ol>
@@ -588,12 +732,12 @@
   <footer><b>Descenso del Sella</b> · Guía de viaje del oriente de Asturias<br>Datos en directo: Ministerio (carburantes) · Open-Meteo (tiempo) · Google News · Cartografía © OpenStreetMap</footer>
 </main>
 
-<nav class="tabbar" id="tabbar">
-  <button class="on" data-tab="explora"><span class="ic">🗺️</span>Explora</button>
-  <button data-tab="plan"><span class="ic">📋</span>Plan</button>
-  <button data-tab="gas"><span class="ic">⛽</span>Gasolina</button>
-  <button data-tab="clima"><span class="ic">🌤️</span>Tiempo</button>
-  <button data-tab="sorteo"><span class="ic">🎉</span>Sorteo</button>
+<nav class="tabbar" id="tabbar" role="tablist" aria-label="Secciones">
+  <button role="tab" class="on" data-tab="explora" aria-selected="true" aria-controls="tab-explora"><span class="ic" aria-hidden="true">🗺️</span>Explora</button>
+  <button role="tab" data-tab="plan" aria-selected="false" aria-controls="tab-plan"><span class="ic" aria-hidden="true">📋</span>Plan</button>
+  <button role="tab" data-tab="gas" aria-selected="false" aria-controls="tab-gas"><span class="ic" aria-hidden="true">⛽</span>Gasolina</button>
+  <button role="tab" data-tab="clima" aria-selected="false" aria-controls="tab-clima"><span class="ic" aria-hidden="true">🌤️</span>Tiempo</button>
+  <button role="tab" data-tab="sorteo" aria-selected="false" aria-controls="tab-sorteo"><span class="ic" aria-hidden="true">🎉</span>Sorteo</button>
 </nav>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -621,6 +765,14 @@ const LUGARES = [
   {t:"ver",n:"Playa de Gulpiyuri",pueblo:"Alrededores",emoji:"🐚",cap:"playa sin mar",stars:4.2,tags:["Playa", "Único"],d:"La playa más pequeña del mundo, tierra adentro: un sumidero al que llega el mar por la roca. Curiosísima. Ve pronto y aparca donde indican para evitar multas.",lat:43.4475,lon:-4.886,pid:"ChIJfX3KjqjoSQ0RybYF9mQpqmg",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjBczM8Zzyf0Ra2mYtMXmM4HabPpJZtx22PsnJ5Dhn13mgyPIU3CA-F-FQuz11GkF_ro13sPeli6HPjNAHkuOnu-3eI07fctcIxvX5bvW9LTtTFUU24MlRruGqGH5sasrSjiorZ-cHOj91rUHw=w640-h480"},
   {t:"ver",n:"Playa de Torimbia",pueblo:"Alrededores",emoji:"🏝️",cap:"salvaje",stars:4.7,tags:["Playa", "Naturista"],d:"Concha virgen en media luna, sin urbanizar. Se baja andando ~15 min (la vuelta cuesta). Es playa nudista. De las más bonitas de Asturias.",lat:43.4421,lon:-4.8517,pid:"ChIJUXVqRd_oSQ0REuaqMMqwEmY",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjCJ54m1qLbC60c7-fqXg1rLkYuCQQIerU4Qw0ArvHyEzcrrdrSbNj3Z30HcCpySztyiFFxAcQh-WDcPddisx0-C2tdYdHTsACwvcTs67IO2eiDdIF-y9i3DcdYJUm1MvmRtI2KrGPjp_0X1S2c=w640-h480"},
   {t:"ver",n:"Cubos de la Memoria",pueblo:"Alrededores",emoji:"🎨",cap:"puerto pintado",stars:4.1,tags:["Arte", "Llanes"],d:"Los bloques del puerto de Llanes pintados por Ibarrola. Paseo colorido con el casco viejo al lado. Combínalo con tapear en Llanes.",lat:43.4214,lon:-4.7475,pid:"ChIJt1syzd_qSQ0RF66l8_sHsO8",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjBOH6Jz2depTY0ZjIVyhSe8EmcnpmV3XrUM_m8B5XzfclGnO3GU3vpsELRqlF7IGAbCjVAAQW65YydJ36SVG545orLsiKGveqOm5kViHtiwXZkyTkZ-C0YZ1MET8PACT7Zf3Kr9KDC177wfbvY=w640-h480"},
+  // -------- VISITAR: cerca de la casa (Onís / Cabrales) --------
+  // OSM no tiene estos 4 sitios indexados por nombre: el pin va sobre su pueblo
+  // (coordenada verificada) y el botón de Maps los resuelve por nombre.
+  {t:"ver",n:"Mirador del Pozo de la Oración",pueblo:"Alrededores",emoji:"🏔️",cap:"el Urriellu de frente",stars:4.7,tags:["Mirador", "Cerca de casa"],d:"El balcón clásico del Naranjo de Bulnes (Picu Urriellu), señalizado en la AS-114 saliendo de Poo de Cabrales. Parada de 5 min con la mejor foto del macizo. A 20 min de la casa.",lat:43.3089,lon:-4.8356,pid:"",img:""},
+  {t:"ver",n:"Cueva del Queso de Cabrales",pueblo:"Alrededores",emoji:"🧀",cap:"cata en la cueva",stars:4.4,tags:["Cultura", "Queso"],d:"Cueva-exposición a la entrada de Arenas de Cabrales: visita guiada de ~45 min por una cueva de maduración real, con cata del Cabrales D.O.P. al final. A 15 min de la casa.",lat:43.3034,lon:-4.8147,pid:"",img:""},
+  {t:"ver",n:"Cuevona de Avín",pueblo:"Alrededores",emoji:"🦌",cap:"fauna glacial",stars:4.3,tags:["Cueva", "Cerca de casa"],d:"Cueva con centro de interpretación de la fauna glacial (mamuts, rinoceronte lanudo) en Avín, a 5 min de la casa. Perfecta para un rato de sombra o un día de lluvia.",lat:43.3345,lon:-4.9518,pid:"",img:""},
+  {t:"ver",n:"Benia de Onís",pueblo:"Alrededores",emoji:"🧀",cap:"cuna del Gamonéu",stars:4.2,tags:["Pueblo", "Queso"],d:"La capital del concejo donde dormimos y la cuna del queso Gamonéu D.O.P.: se compra en la plaza. Ruta quesera circular de 3 km por llagares y cuevas de maduración. A 10 min de la casa.",lat:43.335,lon:-4.9681,pid:"",img:""},
+  {t:"ver",n:"Poncebos",pueblo:"Alrededores",emoji:"🚡",cap:"puerta del Cares",stars:4.4,tags:["Acceso", "Funicular"],d:"Inicio de la Ruta del Cares y del funicular a Bulnes (~22 €, 7 min por un túnel dentro de la montaña). Aparca pronto: el parking se llena a media mañana. A 20 min de la casa.",lat:43.2618,lon:-4.8314,pid:"",img:""},
   // -------- COMER --------
   {t:"comer",n:"El Molín de la Pedrera",pueblo:"Cangas de Onís",emoji:"🍽️",cap:"tradición top",stars:4.7,precio:2,tags:["Tradicional", "Reinventada"],d:"El más redondo de Cangas: tradición asturiana reinventada (fabada, quesos, cabrito, tarta de queso densa de las de recordar). Reserva sí o sí. Cierra miércoles.",lat:43.3516,lon:-5.1299,pid:"ChIJYaz1--whNg0RggpJMzHUewE",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjAQM44gGnLvnW9e8st50cK-4NBENSmYC0HEeR3vtCUEiBt0HeY0Dp2VaetiBLBFUOjnAmzvaPjIs5jwrIYZZ7moKI6qVhvnZ4AOU6KPPWWtmxnVqIN1BbjhrD2xBDoPtoCw-N0UMTeRMaR81A=w640-h480"},
   {t:"comer",n:"Sidrería El Polesu",pueblo:"Cangas de Onís",emoji:"🍏",cap:"taberna auténtica",stars:4.4,precio:1,tags:["Sidrería", "Tradicional"],d:"Taberna auténtica entre barricas, con escanciado sobre la cabeza. Fabada, cachopo, chorizos y boronchu. Cierra lunes.",lat:43.3513,lon:-5.1275,pid:"ChIJX-dolewhNg0RhKLP3js7754",img:"https://lh3.googleusercontent.com/place-photos/AG9NLjDTxK0UPcJrw4GR0C6YCnTc7S4UWRVdv4wZUOqruXLHhBP8Zhl1-h7CqZRlpV38YZ-2Nh3GMmMBF4lg4qgtjV5113GXhLDD2mQrOAdZxqAwdBicM7W3REjetC_QZ29nEzT9CcFIU5m63-zqA0c=w640-h480"},
@@ -672,6 +824,14 @@ function gotoCard(id){                                  // marcador → tarjeta 
 }
 window.gotoMap=gotoMap; window.gotoCard=gotoCard;
 
+/* ============ UTIL ============ */
+/* Open-Meteo da las horas en Europe/Madrid y toISOString() da UTC: sin esto,
+   "hoy" y "ahora" se iban al día/hora equivocados (2 h en verano). */
+const isoLocal=(d,len)=>new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,len||10);
+const hoyISO=()=>isoLocal(new Date());
+/* Días de calendario, no horas sueltas: del 17 al 22 son 5 días, no 6. */
+const diasHasta=iso=>Math.round((new Date(iso+'T00:00')-new Date(hoyISO()+'T00:00'))/86400000);
+
 /* ============ UTIL: fetch resistente (varios proxys) ============ */
 const IS_FILE = location.protocol==='file:';
 function avisoEntorno(){
@@ -703,31 +863,46 @@ async function grab(url){
   throw err||new Error('sin conexión');
 }
 
-/* ============ NAVEGACIÓN TABS ============ */
+/* ============ NAVEGACIÓN TABS (con enlaces #plan, #clima…) ============ */
 const tabbar=document.getElementById('tabbar');
-let mapReady=false, climaLoaded=false, noticiasLoaded=false, gasLoaded=false;
-tabbar.addEventListener('click',e=>{
-  const b=e.target.closest('button'); if(!b)return;
-  const tab=b.dataset.tab;
-  document.querySelectorAll('nav.tabbar button').forEach(x=>x.classList.toggle('on',x===b));
-  document.querySelectorAll('section.tab').forEach(s=>s.classList.remove('on'));
-  document.getElementById('tab-'+tab).classList.add('on');
+const TABS=['explora','plan','gas','clima','sorteo'];
+let mapReady=false, climaLoaded=false, noticiasLoaded=false, gasLoaded=false, planLoaded=false;
+function irATab(tab,push){
+  if(!TABS.includes(tab)) tab='explora';
+  document.querySelectorAll('nav.tabbar button').forEach(x=>{
+    const on=x.dataset.tab===tab; x.classList.toggle('on',on); x.setAttribute('aria-selected',on);
+  });
+  document.querySelectorAll('section.tab').forEach(s=>s.classList.toggle('on',s.id==='tab-'+tab));
+  if(push && location.hash.slice(1)!==tab){ try{history.pushState(null,'','#'+tab);}catch(e){location.hash=tab;} }
   window.scrollTo({top:0,behavior:'smooth'});
   if(tab==='gas'){ try{initMap();}catch(e){console.warn('Leaflet no cargó:',e);} if(!gasLoaded) cargarGasolineras(); }
   if(tab==='explora' && mapSitios){ setTimeout(()=>mapSitios.invalidateSize(),150); }
-  if(tab==='clima'){ if(!climaLoaded){cargarClima(CLIMA_LOC);} if(!noticiasLoaded){cargarNoticias();} }
-});
+  if(tab==='clima'){ if(!climaLoaded){cargarClima(CLIMA_LOC);} if(!noticiasLoaded){cargarNoticias();} cargarMar(); }
+  if(tab==='plan'){ if(!planLoaded) cargarClimaPlan(); setTimeout(irAHoy,120); }
+}
+tabbar.addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) irATab(b.dataset.tab,true); });
+addEventListener('hashchange',()=>irATab(location.hash.slice(1),false));
 
-/* ============ COUNTDOWN ============ */
+/* ============ FECHAS DEL VIAJE + COUNTDOWN ============ */
+const T_LLEGADA=new Date('2026-07-22T12:00:00');
+const T_SELLA  =new Date('2026-07-24T12:00:00');   // ¡al agua!
+const T_RIO_FIN=new Date('2026-07-24T16:30:00');
+const T_VUELTA =new Date('2026-07-26T18:00:00');
 (function(){
-  const ini=new Date('2026-07-22T00:00:00');
-  const hoy=new Date();
-  const dias=Math.ceil((ini-hoy)/86400000);
   const el=document.getElementById('countdown');
-  if(dias>1) el.innerHTML='⏳ faltan <b>'+dias+'</b> días';
-  else if(dias===1) el.innerHTML='⏳ ¡mañana!';
-  else if(dias<=0 && dias>-5) el.innerHTML='🛶 ¡a remar!';
-  else el.innerHTML='🎈 nos vemos el próximo';
+  function pinta(){
+    const h=new Date();
+    if(h<T_LLEGADA){
+      const d=diasHasta('2026-07-22');
+      el.innerHTML = d>1 ? '⏳ faltan <b>'+d+'</b> días' : '⏳ <b>¡mañana!</b>';
+    }else if(h<T_SELLA){
+      const ms=T_SELLA-h, d=Math.floor(ms/86400000), hh=Math.floor(ms/3600000)%24;
+      el.innerHTML='🛶 al agua en <b>'+(d?d+' d ':'')+hh+' h</b>';
+    }else if(h<T_RIO_FIN) el.innerHTML='🛶 <b>¡a remar!</b>';
+    else if(h<T_VUELTA) el.innerHTML='🎉 <b>de viaje</b>';
+    else el.innerHTML='🎈 nos vemos el próximo';
+  }
+  pinta(); setInterval(pinta,60000);
 })();
 
 /* ============ EXPLORA ============ */
@@ -736,7 +911,45 @@ const mapsLink=l=> l.pid
   : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l.n+' '+l.pueblo+' Asturias')}`;
 const dirLink=l=> `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(l.n+' '+l.pueblo)}${l.pid?'&destination_place_id='+l.pid:''}`;
 const eur=n=>'€'.repeat(n||1);
-let fTipo='todo', fPueblo='todos', fTexto='';
+let fTipo='todo', fPueblo='todos', fTexto='', fOrden='normal';
+
+/* La casa: origen de las distancias y del tiempo por defecto (coord. verificada en OSM) */
+const CASA={lat:43.3420,lon:-4.9238,n:'La Robellada'};
+const distCasa=l=> typeof l.lat==='number' ? haversine(CASA.lat,CASA.lon,l.lat,l.lon) : Infinity;
+
+/* Favoritos: por nombre, no por índice, para que no se rompan al añadir sitios */
+const FAV_K='sella_favs';
+let favs=(()=>{try{return new Set(JSON.parse(localStorage.getItem(FAV_K))||[])}catch(e){return new Set()}})();
+const guardaFavs=()=>{try{localStorage.setItem(FAV_K,JSON.stringify([...favs]))}catch(e){}};
+function toggleFav(id,btn){
+  const l=LUGARES.find(x=>x._id===id); if(!l)return;
+  favs.has(l.n)?favs.delete(l.n):favs.add(l.n);
+  guardaFavs();
+  if(fTipo==='fav'){ renderExplora(); return; }
+  const si=favs.has(l.n);
+  btn.classList.toggle('si',si); btn.textContent=si?'⭐':'☆';
+}
+window.toggleFav=toggleFav;
+
+/* Salto desde el plan a la ficha del sitio: quita filtros para que la tarjeta exista */
+function marcaChips(sel,valor,attr){
+  document.querySelectorAll(sel).forEach(x=>{
+    const on=x.dataset[attr]===valor; x.classList.toggle('act',on); x.setAttribute('aria-pressed',on);
+  });
+}
+function verSitio(nombre){
+  const l=LUGARES.find(x=>x.n===nombre);
+  if(!l){ console.warn('sitio sin ficha:',nombre); return; }
+  fTipo='todo'; fPueblo='todos'; fTexto=''; fOrden='normal';
+  document.getElementById('buscador').value='';
+  marcaChips('#f-tipo .chip','todo','tipo');
+  marcaChips('#f-pueblo .chip','todos','pueblo');
+  marcaChips('#f-orden .chip','normal','orden');
+  renderExplora();
+  irATab('explora',true);
+  setTimeout(()=>gotoCard(l._id),280);
+}
+window.verSitio=verSitio;
 
 /* --- Fotos reales del sitio (Google Places) con respaldo al icono --- */
 function imgErr(img){
@@ -754,10 +967,24 @@ function fotoHTML(l){
 }
 /* --- Mapa de sitios (Leaflet), sincronizado con los filtros --- */
 let mapSitios, sitiosLayer, mapSitiosReady=false;
+/* Leaflet viene de unpkg: si no carga (sin red, CDN caído), avisamos en vez de
+   dejar un hueco gris mudo. */
+function sinLeaflet(id){
+  const el=document.getElementById(id);
+  if(!el||el.dataset.err)return; el.dataset.err='1';
+  el.style.height='auto';el.style.background='var(--papel-card)';
+  el.innerHTML='<div style="padding:20px;text-align:center;color:var(--tinta-suave);font-weight:600;font-size:13.5px">'+
+    '🗺️ El mapa no cargó (sin conexión o unpkg bloqueado).<br>'+
+    '<button class="btn btn-s" style="margin-top:10px" onclick="location.reload()">🔄 Reintentar</button></div>';
+}
 function initMapSitios(){
-  if(mapSitiosReady) return; mapSitiosReady=true;
+  if(mapSitiosReady) return;
+  if(typeof L==='undefined'){ sinLeaflet('map-sitios'); return; }
+  mapSitiosReady=true;
   mapSitios=L.map('map-sitios',{scrollWheelZoom:false}).setView([43.36,-5.05],10);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(mapSitios);
+  L.marker([CASA.lat,CASA.lon],{icon:L.divIcon({className:'',html:'<div style="font-size:23px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4))">🏡</div>',iconSize:[23,23]})})
+    .addTo(mapSitios).bindPopup('<div class="pop-sitio"><b>La casa</b><div class="ps-meta">El Balcón de Onís · La Robellada</div></div>');
   sitiosLayer=L.layerGroup().addTo(mapSitios);
   setTimeout(()=>mapSitios.invalidateSize(),200);
 }
@@ -780,7 +1007,8 @@ function renderMapaSitios(res){
 function renderExplora(){
   const cont=document.getElementById('lista-explora');
   const res=LUGARES.filter(l=>{
-    if(fTipo!=='todo' && l.t!==fTipo) return false;
+    if(fTipo==='fav'){ if(!favs.has(l.n)) return false; }
+    else if(fTipo!=='todo' && l.t!==fTipo) return false;
     if(fPueblo!=='todos' && l.pueblo!==fPueblo) return false;
     if(fTexto){
       const hay=(l.n+' '+l.d+' '+l.tags.join(' ')+' '+l.pueblo).toLowerCase();
@@ -788,11 +1016,22 @@ function renderExplora(){
     }
     return true;
   });
+  if(fOrden==='cerca') res.sort((a,b)=>distCasa(a)-distCasa(b));
+  else if(fOrden==='nota') res.sort((a,b)=>b.stars-a.stars);
   renderMapaSitios(res);
-  if(!res.length){cont.innerHTML='<p class="empty">🧭 Nada por aquí… prueba otro filtro.</p>';return;}
-  cont.innerHTML=res.map(l=>`
+  if(!res.length){
+    cont.innerHTML='<p class="empty">'+(fTipo==='fav'
+      ? '⭐ Aún no hay favoritos. Toca la estrella de las tarjetas que os gusten.'
+      : '🧭 Nada por aquí… prueba otro filtro.')+'</p>';
+    return;
+  }
+  cont.innerHTML=res.map(l=>{
+    const km=distCasa(l), fav=favs.has(l.n);
+    return `
     <article class="card" id="sitio-${l._id}">
       <div class="foto${l.img?' has-img':''}">
+        <button type="button" class="fav${fav?' si':''}" onclick="toggleFav(${l._id},this)"
+          aria-label="Marcar como favorito">${fav?'⭐':'☆'}</button>
         ${fotoHTML(l)}
         <div class="cap">${l.cap}</div>
       </div>
@@ -800,6 +1039,7 @@ function renderExplora(){
       <div class="meta">
         <span class="stars">★ ${l.stars.toFixed(1)}</span>
         <span>· 📍 ${l.pueblo}</span>
+        ${isFinite(km)?`<span class="dist-casa">· 🏡 ${km<10?km.toFixed(1):km.toFixed(0)} km</span>`:''}
         ${l.precio?`<span>· ${eur(l.precio)}</span>`:''}
         ${l.tags.map(t=>`<span class="tag ${l.t==='comer'?'comer':''}">${t}</span>`).join('')}
       </div>
@@ -807,18 +1047,22 @@ function renderExplora(){
       <div class="btns">
         <button type="button" class="btn btn-p" onclick="gotoMap(${l._id})">📍 Ubicación</button>
         <a class="btn btn-s" target="_blank" rel="noopener" href="${mapsLink(l)}">🗺️ Ver en Maps</a>
+        <a class="btn btn-s" target="_blank" rel="noopener" href="${dirLink(l)}">🧭 Cómo llegar</a>
       </div>
-    </article>`).join('');
+    </article>`;
+  }).join('');
 }
 document.getElementById('f-tipo').addEventListener('click',e=>{
   const c=e.target.closest('.chip'); if(!c)return;
-  document.querySelectorAll('#f-tipo .chip').forEach(x=>x.classList.toggle('act',x===c));
-  fTipo=c.dataset.tipo; renderExplora();
+  fTipo=c.dataset.tipo; marcaChips('#f-tipo .chip',fTipo,'tipo'); renderExplora();
 });
 document.getElementById('f-pueblo').addEventListener('click',e=>{
   const c=e.target.closest('.chip'); if(!c)return;
-  document.querySelectorAll('#f-pueblo .chip').forEach(x=>x.classList.toggle('act',x===c));
-  fPueblo=c.dataset.pueblo; renderExplora();
+  fPueblo=c.dataset.pueblo; marcaChips('#f-pueblo .chip',fPueblo,'pueblo'); renderExplora();
+});
+document.getElementById('f-orden').addEventListener('click',e=>{
+  const c=e.target.closest('.chip'); if(!c)return;
+  fOrden=c.dataset.orden; marcaChips('#f-orden .chip',fOrden,'orden'); renderExplora();
 });
 document.getElementById('buscador').addEventListener('input',e=>{fTexto=e.target.value.toLowerCase().trim();renderExplora();});
 renderExplora();
@@ -831,7 +1075,9 @@ const FUEL_KEYS={g95:'Precio Gasolina 95 E5',g98:'Precio Gasolina 98 E5',diesel:
 const FUEL_NOM={g95:'Gasolina 95',g98:'Gasolina 98',diesel:'Diésel',glp:'GLP'};
 
 function initMap(){
-  if(mapReady)return; mapReady=true;
+  if(mapReady)return;
+  if(typeof L==='undefined'){ sinLeaflet('map'); return; }
+  mapReady=true;
   map=L.map('map',{scrollWheelZoom:false}).setView([43.40,-5.12],11);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
     maxZoom:18, attribution:'© OpenStreetMap'}).addTo(map);
@@ -943,8 +1189,9 @@ document.getElementById('fuel-tabs').addEventListener('click',e=>{
 });
 
 /* ============ TIEMPO ============ */
-const LOCS={ribadesella:{lat:43.4623,lon:-5.0576,n:'Ribadesella'},arriondas:{lat:43.3897,lon:-5.1836,n:'Arriondas'}};
-let CLIMA_LOC='ribadesella';
+const LOCS={casa:{lat:CASA.lat,lon:CASA.lon,n:'La Robellada'},
+  ribadesella:{lat:43.4623,lon:-5.0576,n:'Ribadesella'},arriondas:{lat:43.3897,lon:-5.1836,n:'Arriondas'}};
+let CLIMA_LOC='casa';
 const WMO={0:['Despejado','☀️'],1:['Casi despejado','🌤️'],2:['Nubes y claros','⛅'],3:['Nublado','☁️'],
   45:['Niebla','🌫️'],48:['Niebla','🌫️'],51:['Llovizna','🌦️'],53:['Llovizna','🌦️'],55:['Llovizna','🌧️'],
   56:['Llovizna helada','🌧️'],57:['Llovizna helada','🌧️'],61:['Lluvia','🌧️'],63:['Lluvia','🌧️'],65:['Lluvia fuerte','🌧️'],
@@ -978,7 +1225,7 @@ function abrirDiaPanel(iso,card){
     if(t<tmin)tmin=t; if(t>tmax)tmax=t;
   }
   const span=Math.max(1,tmax-tmin);
-  const ahoraISO=new Date().toISOString().slice(0,13); // yyyy-mm-ddThh
+  const ahoraISO=isoLocal(new Date(),13); // yyyy-mm-ddThh en hora local
 
   document.getElementById('dia-panel-titulo').textContent=`${DIAS_LARGO[dt.getDay()]} ${dt.getDate()}/${dt.getMonth()+1}`;
   document.getElementById('dia-panel-rango').innerHTML=`<b>${Math.round(tmax)}°</b> máx · ${Math.round(tmin)}° mín`;
@@ -1021,11 +1268,13 @@ async function cargarClima(loc){
   try{
     const u=`https://api.open-meteo.com/v1/forecast?latitude=${L.lat}&longitude=${L.lon}`+
       `&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m`+
-      `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max`+
+      `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset`+
       `&hourly=temperature_2m,weather_code,precipitation_probability`+
       `&timezone=Europe%2FMadrid&forecast_days=16`;
     const j=JSON.parse(await grab(u));
     const c=j.current, [txt,ic]=wmo(c.weather_code);
+    const sol=j.daily.sunrise&&j.daily.sunrise[0]
+      ? `<span>🌅 ${j.daily.sunrise[0].slice(11,16)}</span><span>🌇 ${j.daily.sunset[0].slice(11,16)}</span>` : '';
     now.innerHTML=`
       <div class="fila">
         <div class="ico">${ic}</div>
@@ -1039,6 +1288,7 @@ async function cargarClima(loc){
         <span>💧 ${c.relative_humidity_2m}% humedad</span>
         <span>🌧️ ${c.precipitation} mm</span>
         <span>💨 ${Math.round(c.wind_speed_10m)} km/h</span>
+        ${sol}
       </div>`;
     HOURLY=j.hourly; cerrarDiaPanel();
     const d=j.daily; let html='';
@@ -1069,9 +1319,77 @@ async function cargarClima(loc){
 }
 document.getElementById('clima-toggle').addEventListener('click',e=>{
   const c=e.target.closest('.chip'); if(!c)return;
-  document.querySelectorAll('#clima-toggle .chip').forEach(x=>x.classList.toggle('act',x===c));
+  marcaChips('#clima-toggle .chip',c.dataset.loc,'loc');
   cargarClima(c.dataset.loc);
 });
+
+/* ============ EL TIEMPO DE CADA DÍA DEL PLAN (desde la casa) ============ */
+let planClima=null;
+async function cargarClimaPlan(){
+  planLoaded=true;
+  try{
+    const u=`https://api.open-meteo.com/v1/forecast?latitude=${CASA.lat}&longitude=${CASA.lon}`+
+      `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset`+
+      `&timezone=Europe%2FMadrid&forecast_days=16`;
+    planClima=JSON.parse(await grab(u)).daily;
+    pintaClimaPlan();
+  }catch(e){ planLoaded=false; console.warn('clima del plan:',e); }
+}
+function pintaClimaPlan(){
+  if(!planClima)return;
+  document.querySelectorAll('.plan-dia').forEach(dia=>{
+    const i=planClima.time.indexOf(dia.dataset.iso);
+    const box=dia.querySelector('.pd-clima'), sol=dia.querySelector('.pd-sol');
+    if(i<0) return;                       // fuera de los 16 días de previsión
+    const [txt,ic]=wmo(planClima.weather_code[i]);
+    const ll=planClima.precipitation_probability_max[i]??0;
+    box.innerHTML=`<span class="pc-i" title="${txt}">${ic}</span><span><b>${Math.round(planClima.temperature_2m_max[i])}°</b>`+
+      ` ${Math.round(planClima.temperature_2m_min[i])}° <span class="pc-ll">💧${ll}%</span></span>`;
+    sol.textContent=`🌅 ${planClima.sunrise[i].slice(11,16)} · 🌇 ${planClima.sunset[i].slice(11,16)}`;
+  });
+}
+
+/* ============ ¿SOPLAN HOY LOS BUFONES? (marea + mar de fondo) ============ */
+let marLoaded=false;
+function pleamares(h,dia){          // máximos locales del nivel del mar de ese día
+  const out=[];
+  for(let i=1;i<h.time.length-1;i++){
+    if(!h.time[i].startsWith(dia))continue;
+    const a=h.sea_level_height_msl[i-1],b=h.sea_level_height_msl[i],c=h.sea_level_height_msl[i+1];
+    if(a==null||b==null||c==null)continue;
+    if(b>=a&&b>c) out.push(i);
+  }
+  return out;
+}
+function juzgaBufones(s){           // hacen falta las dos cosas: pleamar Y mar de fondo
+  if(s>=2)   return ['si','🌊 ¡Rugen fuerte!','Mar de fondo de '+s.toFixed(1)+' m: en la pleamar es un espectáculo.'];
+  if(s>=1.2) return ['si','💦 Sí soplan','Con '+s.toFixed(1)+' m de mar de fondo, en la pleamar escupen bien.'];
+  if(s>=0.8) return ['quiza','🤏 Flojito','Solo '+s.toFixed(1)+' m de mar de fondo: alguno escupirá, pero sin fuegos artificiales.'];
+  return ['no','😴 Hoy no','Mar en calma ('+s.toFixed(1)+' m): no soplan. Cambiad los bufones por playa.'];
+}
+async function cargarMar(){
+  if(marLoaded)return; marLoaded=true;
+  const box=document.getElementById('mar');
+  try{
+    const u='https://marine-api.open-meteo.com/v1/marine?latitude=43.4584&longitude=-4.9798'+
+      '&hourly=sea_level_height_msl,swell_wave_height&timezone=Europe%2FMadrid&forecast_days=7';
+    const h=JSON.parse(await grab(u)).hourly;
+    const hoy=isoLocal(new Date());
+    let swell=0;
+    for(let i=0;i<h.time.length;i++) if(h.time[i].startsWith(hoy)) swell=Math.max(swell,h.swell_wave_height[i]??0);
+    const [cls,tit,sub]=juzgaBufones(swell);
+    const pm=pleamares(h,hoy);
+    box.innerHTML=`<h3>🌊 ¿Soplan hoy los Bufones de Pría?</h3>
+      <div class="m-est ${cls}">${tit}</div>
+      <div class="m-sub">${sub}</div>
+      ${pm.length?`<div class="m-pleas">${pm.map(i=>`<span>🌊 Pleamar ${h.time[i].slice(11,16)}</span>`).join('')}</div>`:''}
+      <div class="m-sub" style="margin-top:9px;opacity:.7">Ve en la pleamar: con marea baja no soplan aunque haya olas.</div>`;
+  }catch(e){
+    marLoaded=false;
+    box.innerHTML='🌊 No se pudo consultar la mar. <button class="btn btn-s" id="re-mar" style="padding:4px 12px">🔄 Reintentar</button>';
+    const b=document.getElementById('re-mar'); if(b)b.onclick=cargarMar;
+  }
+}
 
 /* ============ NOTICIAS ============ */
 async function cargarNoticias(){
@@ -1132,9 +1450,46 @@ document.getElementById('add-name').onclick=addName;
 document.getElementById('name-input').addEventListener('keydown',e=>{if(e.key==='Enter')addName();});
 optDesc.onchange=()=>{S.desc=optDesc.checked;store.save(S);};
 
+/* --- modo: elegir a uno / repartir en grupos (habitaciones, coches…) --- */
+let modoSorteo='uno';
+document.getElementById('modo-row').addEventListener('click',e=>{
+  const c=e.target.closest('.chip'); if(!c)return;
+  modoSorteo=c.dataset.modo; marcaChips('#modo-row .chip',modoSorteo,'modo');
+  document.getElementById('grupos-cfg').hidden = modoSorteo!=='grupos';
+  document.getElementById('fila-descartar').hidden = modoSorteo!=='uno';
+  document.getElementById('winner-stage').innerHTML='';
+  document.getElementById('grupos-out').innerHTML='';
+  document.getElementById('sortear').textContent = modoSorteo==='grupos'?'🛏️ ¡Repartir!':'🎈 ¡Sortear!';
+});
+function baraja(a){                       // Fisher-Yates
+  const r=a.slice();
+  for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}
+  return r;
+}
+function reparte(nombres,n){              // round-robin sobre la lista barajada = grupos parejos
+  const g=Array.from({length:n},()=>[]);
+  baraja(nombres).forEach((nm,i)=>g[i%n].push(nm));
+  return g;
+}
+function sorteaGrupos(){
+  const activos=S.names.filter(p=>!p.out).map(p=>p.n);
+  const out=document.getElementById('grupos-out');
+  const n=Math.max(2,Math.min(10,parseInt(document.getElementById('n-grupos').value,10)||2));
+  if(activos.length<n){
+    out.innerHTML='<div style="color:var(--tinta-suave);font-weight:700;padding:6px 2px">🎈 Hacen falta al menos '+n+' nombres para '+n+' grupos.</div>';
+    return;
+  }
+  document.getElementById('winner-stage').innerHTML='';
+  out.innerHTML=reparte(activos,n).map((gr,i)=>
+    `<div class="grupo" style="animation:fade .4s ease both;animation-delay:${i*80}ms">
+      <b>Grupo ${i+1}</b>${gr.map(x=>`<span>${x}</span>`).join('')}</div>`).join('');
+}
+
 document.getElementById('sortear').onclick=function(){
+  if(modoSorteo==='grupos'){ sorteaGrupos(); return; }
   const activos=S.names.filter(p=>!p.out);
   const stage=document.getElementById('winner-stage');
+  document.getElementById('grupos-out').innerHTML='';
   if(activos.length===0){stage.innerHTML='<div style="color:var(--tinta-suave);font-weight:800">🎈 No quedan participantes. Añade nombres o reinicia.</div>';return;}
   this.disabled=true;
   stage.innerHTML='<div style="font-family:Fredoka;font-weight:700;font-size:26px" id="roll">🎲</div>';
@@ -1161,8 +1516,129 @@ document.getElementById('sortear').onclick=function(){
 document.getElementById('reset-hist').onclick=()=>{
   S.hist=[]; S.names.forEach(p=>p.out=false); store.save(S); renderHist(); renderNames();
   document.getElementById('winner-stage').innerHTML='';
+  document.getElementById('grupos-out').innerHTML='';
 };
 renderNames(); renderHist();
+
+/* ============ PLAN: día de hoy, opciones A/B y cosas hechas ============ */
+const PLAN_K='sella_plan';
+let P=(()=>{try{return JSON.parse(localStorage.getItem(PLAN_K))||{}}catch(e){return {}}})();
+P.ab=P.ab||{}; P.hechos=P.hechos||[];
+const guardaPlan=()=>{try{localStorage.setItem(PLAN_K,JSON.stringify(P))}catch(e){}};
+
+function pintaPlan(){
+  document.querySelectorAll('.plan-dia').forEach(dia=>{
+    const op=P.ab[dia.dataset.dia]||null;
+    dia.querySelectorAll('.ab button').forEach(b=>b.classList.toggle('sel',b.dataset.op===op));
+    // sin elección se ven las dos opciones; al elegir una, la otra se esconde
+    dia.querySelectorAll('.pd-row[data-op]').forEach(r=>r.classList.toggle('oculto',!!op&&r.dataset.op!==op));
+  });
+  document.querySelectorAll('.pd-row[data-id]').forEach(r=>r.classList.toggle('hecho',P.hechos.includes(r.dataset.id)));
+}
+function irAHoy(){
+  const hoy=isoLocal(new Date());
+  let card=null;
+  document.querySelectorAll('.plan-dia').forEach(d=>{
+    const es=d.dataset.iso===hoy;
+    d.classList.toggle('hoy',es);
+    if(es){
+      card=d;
+      const h=d.querySelector('.pd-head h3');
+      if(!h.querySelector('.pd-hoy')) h.insertAdjacentHTML('beforeend','<span class="pd-hoy">hoy</span>');
+    }
+  });
+  if(card) card.scrollIntoView({behavior:'smooth',block:'start'});
+}
+document.getElementById('tab-plan').addEventListener('click',e=>{
+  const ab=e.target.closest('.ab button');
+  if(ab){
+    const d=ab.closest('.ab').dataset.dia;
+    P.ab[d] = P.ab[d]===ab.dataset.op ? null : ab.dataset.op;   // volver a tocarla = ver las dos
+    guardaPlan(); pintaPlan(); return;
+  }
+  const tick=e.target.closest('.pd-tick');
+  if(tick){
+    const id=tick.closest('.pd-row').dataset.id, i=P.hechos.indexOf(id);
+    i<0 ? P.hechos.push(id) : P.hechos.splice(i,1);
+    guardaPlan(); pintaPlan(); return;
+  }
+  const lnk=e.target.closest('.lnk');
+  if(lnk){
+    if(lnk.dataset.sitio) verSitio(lnk.dataset.sitio);
+    else if(lnk.dataset.tab) irATab(lnk.dataset.tab,true);
+  }
+});
+
+/* ============ PWA: instalar, compartir, calendario, offline ============ */
+if('serviceWorker' in navigator && location.protocol!=='file:'){
+  addEventListener('load',()=>navigator.serviceWorker.register('sw.js',{updateViaCache:'none'})
+    .catch(e=>console.warn('SW no registrado:',e)));
+}
+let promptInstalar=null;
+const btnInst=document.getElementById('btn-instalar');
+addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); promptInstalar=e; btnInst.hidden=false; });
+addEventListener('appinstalled',()=>{ btnInst.hidden=true; promptInstalar=null; });
+btnInst.onclick=async()=>{
+  if(!promptInstalar)return;
+  promptInstalar.prompt();
+  const {outcome}=await promptInstalar.userChoice;
+  if(outcome==='accepted') btnInst.hidden=true;
+  promptInstalar=null;
+};
+document.getElementById('btn-compartir').onclick=async()=>{
+  const url=location.href.split('#')[0];
+  const datos={title:'Descenso del Sella 2026',text:'Nuestra guía del viaje: plan, sitios, gasolineras y el tiempo 🛶',url};
+  try{
+    if(navigator.share) await navigator.share(datos);
+    else { await navigator.clipboard.writeText(url); avisa('🔗 Enlace copiado'); }
+  }catch(e){}   // el usuario canceló: sin ruido
+};
+document.getElementById('btn-cal').onclick=()=>{
+  // 12:00–16:30 hora peninsular = 10:00–14:30 UTC (en julio, CEST = UTC+2)
+  const u='https://calendar.google.com/calendar/render?action=TEMPLATE'+
+    '&text='+encodeURIComponent('🛶 Descenso del Sella')+
+    '&dates=20260724T100000Z/20260724T143000Z'+
+    '&details='+encodeURIComponent('Salida en Arriondas a las 12:00. Bañador puesto, escarpines, crema y bote estanco.\n\n'+location.href.split('#')[0])+
+    '&location='+encodeURIComponent('Arriondas, Asturias');
+  window.open(u,'_blank','noopener');
+};
+const _barra=document.getElementById('offline-bar');
+function pintaOffline(){
+  _barra.textContent='📴 Sin conexión · viendo los últimos datos guardados';
+  _barra.classList.toggle('on',!navigator.onLine);
+}
+function avisa(txt){                      // reutiliza la barra para un aviso corto
+  _barra.textContent=txt; _barra.classList.add('on');
+  setTimeout(()=>{ _barra.classList.remove('on'); setTimeout(pintaOffline,320); },1800);
+}
+addEventListener('online',pintaOffline); addEventListener('offline',pintaOffline);
+
+/* La aurora del hero son 4 blobs con blur animados: fuera de pantalla, se paran */
+if('IntersectionObserver' in window){
+  const au=document.getElementById('aurora');
+  new IntersectionObserver(es=>au.classList.toggle('quieta',!es[0].isIntersecting),{threshold:0})
+    .observe(document.querySelector('header.hero'));
+}
+
+/* ============ AUTOCOMPROBACIÓN (abre con ?selftest) ============ */
+if(location.search.includes('selftest')){
+  const ok=(c,q)=>console[c?'log':'error']((c?'✅':'❌')+' '+q);
+  const g=reparte(['a','b','c','d','e','f','g'],3);
+  ok(g.flat().length===7 && new Set(g.flat()).size===7,'reparte: no pierde ni duplica gente');
+  ok(Math.max(...g.map(x=>x.length))-Math.min(...g.map(x=>x.length))<=1,'reparte: grupos parejos');
+  const h={time:['2026-07-25T00:00','2026-07-25T01:00','2026-07-25T02:00','2026-07-25T03:00','2026-07-26T00:00'],
+           sea_level_height_msl:[0,2,1,0,9]};
+  ok(JSON.stringify(pleamares(h,'2026-07-25'))==='[1]','pleamares: pilla el máximo y no se va a otro día');
+  ok(juzgaBufones(2.5)[0]==='si' && juzgaBufones(0.3)[0]==='no','bufones: veredicto por mar de fondo');
+  ok(Math.round(haversine(CASA.lat,CASA.lon,43.3350,-4.9681)*10)/10<=4,'haversine: Benia está a <4 km de la casa');
+  ok(isoLocal(new Date('2026-07-25T00:30:00'))==='2026-07-25','isoLocal: la fecha local no se va al día anterior');
+  ok(diasHasta(hoyISO())===0 && diasHasta('2026-07-22')===Math.round((new Date('2026-07-22T00:00')-new Date(hoyISO()+'T00:00'))/864e5),
+     'diasHasta: cuenta días de calendario (hoy = 0)');
+}
+
+/* ============ ARRANQUE (al final: todo definido ya) ============ */
+pintaPlan(); pintaOffline();
+irATab(location.hash.slice(1)||'explora',false);
 </script>
 </body>
 </html>
