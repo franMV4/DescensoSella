@@ -6,6 +6,14 @@
 <meta name="theme-color" content="#20342A">
 <title>Descenso del Sella · Guía de viaje · Asturias</title>
 <meta name="description" content="Guía de viaje del Descenso del Sella y el oriente de Asturias: qué ver, dónde comer, gasolineras más baratas en tiempo real, el tiempo, noticias y sorteo del grupo.">
+<!-- previsualización al compartir por WhatsApp/Telegram (URL absoluta obligatoria) -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://franmv4.github.io/DescensoSella/">
+<meta property="og:title" content="Descenso del Sella 2026 · Guía del viaje">
+<meta property="og:description" content="Plan día a día, 60 sitios que ver y donde comer, gasolineras más baratas en tiempo real, el tiempo y cómo baja el río.">
+<meta property="og:image" content="https://franmv4.github.io/DescensoSella/icon-512.png">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -144,10 +152,11 @@
     border-radius:var(--radio);box-shadow:var(--sombra-s);padding:0 0 16px;overflow:hidden;
     transition:transform .22s cubic-bezier(.2,.7,.3,1),box-shadow .22s}
   .card:hover{transform:translateY(-3px);box-shadow:var(--sombra)}
+  /* misma altura con foto y sin foto: si no, la rejilla de 2 columnas queda en dientes de sierra */
   .foto{background:var(--niebla);position:relative;margin-bottom:14px;overflow:hidden;
-    display:flex;align-items:center;justify-content:center;min-height:64px}
-  .foto .emoji{font-size:46px;line-height:1;padding:34px 0;filter:grayscale(.05)}
-  .foto img{width:100%;height:172px;object-fit:cover;display:block;
+    display:flex;align-items:center;justify-content:center;height:172px}
+  .foto .emoji{font-size:46px;line-height:1;filter:grayscale(.05)}
+  .foto img{width:100%;height:100%;object-fit:cover;display:block;
     background:linear-gradient(135deg,var(--cielo2),var(--papel-linea));
     filter:saturate(1.02);animation:fadeimg .5s ease}
   @keyframes fadeimg{from{opacity:0}to{opacity:1}}
@@ -159,8 +168,45 @@
   .card h3{font-size:20px;margin:0 16px 5px;color:var(--tinta);line-height:1.15}
   .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 16px 10px;font-size:12.5px;font-weight:600;color:var(--tinta-suave)}
   .stars{color:var(--amarillo);font-weight:800}
-  .tag{background:rgba(44,110,120,.10);color:var(--uva-hondo);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700;letter-spacing:.02em}
+  .tag{background:rgba(44,110,120,.10);color:var(--uva-hondo);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700;letter-spacing:.02em;
+    border:none;font-family:inherit;cursor:pointer;transition:background .15s}
+  .tag:hover{background:rgba(44,110,120,.22)}
   .tag.comer{background:rgba(180,71,43,.12);color:var(--rojo-hondo)}
+  .tag.comer:hover{background:rgba(180,71,43,.24)}
+
+  /* ---------- HOY ---------- */
+  .hoy-dia{background:var(--papel-card);border:1px solid var(--papel-linea);border-radius:var(--radio);
+    box-shadow:var(--sombra-s);padding:18px 18px 14px;margin-bottom:14px}
+  .hoy-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:4px}
+  .hoy-n{font-family:'Fraunces';font-size:38px;font-weight:600;line-height:.9;color:var(--rojo)}
+  .hoy-n small{display:block;font-family:'Hanken Grotesk';font-size:10.5px;font-weight:700;
+    letter-spacing:.18em;text-transform:uppercase;color:var(--tinta-suave);margin-top:5px}
+  .hoy-top h3{font-size:20px;margin-bottom:3px}
+  .hoy-sub{font-size:13px;color:var(--tinta-suave);line-height:1.45}
+  .hoy-meta{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:12px;
+    padding-top:11px;border-top:1px dashed var(--papel-linea);font-size:12.5px;color:var(--tinta-suave);font-weight:600}
+  .hoy-ahora{background:linear-gradient(160deg,var(--pino2),var(--pino));border-radius:var(--radio);
+    padding:16px 18px;box-shadow:var(--sombra-s);color:#F1ECDD;margin-bottom:14px}
+  .hoy-ahora .et{font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--amarillo);margin-bottom:8px}
+  .hoy-ahora .hr{font-family:'Fraunces';font-size:26px;font-weight:600;line-height:1;margin-bottom:7px}
+  .hoy-ahora .tx{font-size:14.5px;line-height:1.55;color:#DCE7DD}
+  .hoy-ahora .tx b{color:#fff}
+  .hoy-ahora .lnk{color:var(--amarillo);cursor:pointer;border-bottom:1px dotted rgba(192,138,42,.6)}
+  .hoy-luego{background:var(--papel-card);border:1px solid var(--papel-linea);border-radius:var(--radio);
+    box-shadow:var(--sombra-s);padding:6px 18px 12px;margin-bottom:14px}
+  .hoy-luego .et{font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--rojo);margin:13px 0 2px}
+  .hoy-luego .pd-row:last-child{border-bottom:none}
+  .hoy-fin{text-align:center;padding:22px 16px;color:var(--tinta-suave);font-size:14px;line-height:1.6}
+  .hoy-fin b{color:var(--verde)}
+  .hoy-espera{text-align:center;background:var(--papel-card);border:1px solid var(--papel-linea);
+    border-radius:var(--radio);box-shadow:var(--sombra-s);padding:34px 20px 28px}
+  .hoy-espera .he-n{font-family:'Fraunces';font-size:64px;font-weight:600;line-height:1;color:var(--rojo)}
+  .hoy-espera .he-t{font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--tinta-suave);margin-top:8px}
+  .hoy-espera p{font-size:14px;color:var(--tinta-suave);line-height:1.6;max-width:36ch;margin:14px auto 18px}
+  .hoy-acc{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
   .desc{font-size:14px;line-height:1.55;color:#414c44;margin:0 16px 14px}
   .btns{display:flex;gap:8px;flex-wrap:wrap;margin:0 16px}
   .btn{display:inline-flex;align-items:center;gap:6px;border-radius:9px;padding:9px 15px;font-family:'Hanken Grotesk';
@@ -487,6 +533,7 @@
     <div class="hero-acc">
       <button class="hero-btn dest" id="btn-instalar" hidden>⬇️ Instalar app</button>
       <button class="hero-btn" id="btn-compartir">📤 Compartir</button>
+      <button class="hero-btn" id="btn-grupo">🤝 Pasar mi plan</button>
       <button class="hero-btn" id="btn-cal">📅 Guardar el Descenso</button>
     </div>
   </div>
@@ -499,8 +546,14 @@
 
 <main class="wrap">
 
+  <!-- ================= HOY ================= -->
+  <section class="tab on" id="tab-hoy">
+    <div class="sec-head"><span class="eyebrow" id="hoy-eyebrow">ahora mismo</span><h2 id="hoy-titulo">Hoy</h2></div>
+    <div id="hoy-body" role="status"></div>
+  </section>
+
   <!-- ================= EXPLORA ================= -->
-  <section class="tab on" id="tab-explora">
+  <section class="tab" id="tab-explora">
     <div class="sec-head"><span class="eyebrow">nuestra ruta</span><h2>Qué ver y dónde comer</h2></div>
     <p class="sec-sub">Los mejores rincones y sidrerías de la zona. Toca para llegar en un clic.</p>
     <div class="filtros" id="f-tipo" role="group" aria-label="Tipo de sitio">
@@ -612,7 +665,7 @@
         <div class="pd-clima"></div>
       </div>
       <div class="pd-sol"></div>
-      <div class="rio" id="rio"><span class="spin">⏳</span> Mirando cómo baja el río…</div>
+      <div class="rio" id="rio" role="status"><span class="spin">⏳</span> Mirando cómo baja el río…</div>
       <div class="pd-body">
         <div class="pd-row" data-id="24-1"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">9:30</span><span class="pd-txt">Desayuno fuerte en la casa. Preparad: bañador puesto, escarpines, crema, gorra y bote estanco para el móvil.</span></div>
         <div class="pd-row" data-id="24-2"><button type="button" class="pd-tick" aria-label="Marcar como hecho"></button><span class="pd-hora">10:50</span><span class="pd-txt">Salir hacia <b class="lnk" data-sitio="Salida del Descenso">Arriondas</b> (~35 min) y presentarse en la empresa con margen.</span></div>
@@ -687,7 +740,7 @@
       <span><i style="background:#f3b61f"></i>Media</span>
       <span><i style="background:#e4572e"></i>Más cara</span>
     </div>
-    <div class="estado" id="gas-estado"><span class="spin">⏳</span> Cargando precios…</div>
+    <div class="estado" id="gas-estado" role="status"><span class="spin">⏳</span> Cargando precios…</div>
     <div id="lista-gas"></div>
   </section>
 
@@ -699,7 +752,7 @@
       <button type="button" class="chip" data-loc="ribadesella" aria-pressed="false">🏖️ Ribadesella</button>
       <button type="button" class="chip" data-loc="arriondas" aria-pressed="false">🛶 Arriondas</button>
     </div>
-    <div class="clima-now" id="clima-now"><span class="spin">⏳</span> Cargando el tiempo…</div>
+    <div class="clima-now" id="clima-now" role="status"><span class="spin">⏳</span> Cargando el tiempo…</div>
     <h3 style="font-size:18px;margin:4px 2px 8px">Próximos días</h3>
     <div class="forecast" id="forecast"></div>
     <div class="dia-panel" id="dia-panel">
@@ -714,11 +767,11 @@
         </div>
       </div>
     </div>
-    <div class="mar" id="mar"><span class="spin">⏳</span> Mirando la mar…</div>
+    <div class="mar" id="mar" role="status"><span class="spin">⏳</span> Mirando la mar…</div>
 
     <div class="sec-head" style="margin-top:26px"><span class="eyebrow">se comenta</span><h2>Noticias recientes</h2></div>
     <p class="sec-sub">Lo último sobre el Descenso del Sella y Ribadesella.</p>
-    <div id="noticias"><div class="estado"><span class="spin">⏳</span> Buscando noticias…</div></div>
+    <div id="noticias" role="status"><div class="estado"><span class="spin">⏳</span> Buscando noticias…</div></div>
   </section>
 
   <!-- ================= SORTEO ================= -->
@@ -758,7 +811,8 @@
 </main>
 
 <nav class="tabbar" id="tabbar" role="tablist" aria-label="Secciones">
-  <button role="tab" class="on" data-tab="explora" aria-selected="true" aria-controls="tab-explora"><span class="ic" aria-hidden="true">🗺️</span>Explora</button>
+  <button role="tab" class="on" data-tab="hoy" aria-selected="true" aria-controls="tab-hoy"><span class="ic" aria-hidden="true">📍</span>Hoy</button>
+  <button role="tab" data-tab="explora" aria-selected="false" aria-controls="tab-explora"><span class="ic" aria-hidden="true">🗺️</span>Explora</button>
   <button role="tab" data-tab="plan" aria-selected="false" aria-controls="tab-plan"><span class="ic" aria-hidden="true">📋</span>Plan</button>
   <button role="tab" data-tab="gas" aria-selected="false" aria-controls="tab-gas"><span class="ic" aria-hidden="true">⛽</span>Gasolina</button>
   <button role="tab" data-tab="clima" aria-selected="false" aria-controls="tab-clima"><span class="ic" aria-hidden="true">🌤️</span>Tiempo</button>
@@ -905,7 +959,7 @@ async function grab(url){
 
 /* ============ NAVEGACIÓN TABS (con enlaces #plan, #clima…) ============ */
 const tabbar=document.getElementById('tabbar');
-const TABS=['explora','plan','gas','clima','sorteo'];
+const TABS=['hoy','explora','plan','gas','clima','sorteo'];
 let mapReady=false, climaLoaded=false, noticiasLoaded=false, gasLoaded=false, planLoaded=false;
 function irATab(tab,push){
   if(!TABS.includes(tab)) tab='explora';
@@ -919,6 +973,8 @@ function irATab(tab,push){
   if(tab==='explora' && mapSitios){ setTimeout(()=>mapSitios.invalidateSize(),150); }
   if(tab==='clima'){ if(!climaLoaded){cargarClima(CLIMA_LOC);} if(!noticiasLoaded){cargarNoticias();} cargarMar(); }
   if(tab==='plan'){ if(!planLoaded) cargarClimaPlan(); cargarRio(); setTimeout(irAHoy,120); }
+  // Hoy no tiene datos propios: sale del plan + la previsión que ya carga la pestaña Plan
+  if(tab==='hoy'){ renderHoy(); if(!planLoaded) cargarClimaPlan().then(renderHoy); }
 }
 tabbar.addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) irATab(b.dataset.tab,true); });
 addEventListener('hashchange',()=>irATab(location.hash.slice(1),false));
@@ -1097,7 +1153,7 @@ function renderExplora(){
         <span>· 📍 ${l.pueblo}</span>
         ${isFinite(km)?`<span class="dist-casa">· ${desdeYo?'📍':'🏡'} ${km<10?km.toFixed(1):km.toFixed(0)} km</span>`:''}
         ${l.precio?`<span>· ${eur(l.precio)}</span>`:''}
-        ${l.tags.map(t=>`<span class="tag ${l.t==='comer'?'comer':''}">${t}</span>`).join('')}
+        ${l.tags.map(t=>`<button type="button" class="tag ${l.t==='comer'?'comer':''}" onclick="buscaTag('${t.replace(/'/g,"\\'")}')">${t}</button>`).join('')}
       </div>
       <p class="desc">${l.d}</p>
       <div class="btns">
@@ -1123,6 +1179,15 @@ document.getElementById('f-orden').addEventListener('click',e=>{
   renderExplora();
 });
 document.getElementById('buscador').addEventListener('input',e=>{fTexto=norm(e.target.value);renderExplora();});
+// tocar un tag de una tarjeta = buscar ese tag (los tags ya están en el texto que se busca)
+function buscaTag(t){
+  const b=document.getElementById('buscador');
+  b.value=t; fTexto=norm(t);
+  if(fTipo==='fav'){ fTipo='todo'; marcaChips('#f-tipo .chip','todo','tipo'); }
+  renderExplora();
+  b.scrollIntoView({behavior:'smooth',block:'center'});
+}
+window.buscaTag=buscaTag;
 renderExplora();
 
 /* ============ GASOLINERAS ============ */
@@ -1714,6 +1779,106 @@ function irAHoy(){
   });
   if(card) card.scrollIntoView({behavior:'smooth',block:'start'});
 }
+/* ============ HOY: qué toca ahora ============
+   No duplica datos: lee el mismo DOM del plan (respetando la opción A/B elegida
+   y lo ya tachado) y lo reordena por la hora que es. */
+const hhmm=s=>{const [h,m]=s.split(':');return +h*60+ +m;};
+function filasDeHoy(dia){
+  return [...dia.querySelectorAll('.pd-row[data-id]')]
+    .filter(r=>!r.classList.contains('oculto'))
+    .map(r=>({id:r.dataset.id,min:hhmm(r.querySelector('.pd-hora').textContent),
+              hora:r.querySelector('.pd-hora').textContent,
+              txt:r.querySelector('.pd-txt').innerHTML,
+              hecho:P.hechos.includes(r.dataset.id)}))
+    .sort((a,b)=>a.min-b.min);
+}
+function renderHoy(){
+  const cont=document.getElementById('hoy-body');
+  const eyebrow=document.getElementById('hoy-eyebrow'), titulo=document.getElementById('hoy-titulo');
+  const hoy=hoyISO();
+  const dia=[...document.querySelectorAll('.plan-dia')].find(d=>d.dataset.iso===hoy);
+
+  if(!dia){                                    // fuera de los 5 días del viaje
+    const faltan=diasHasta('2026-07-22');
+    eyebrow.textContent = faltan>0 ? 'cuenta atrás' : 'hasta la próxima';
+    titulo.textContent  = faltan>0 ? 'Ya queda menos' : 'Se acabó el Sella';
+    cont.innerHTML = faltan>0
+      ? `<div class="hoy-espera">
+           <div class="he-n">${faltan}</div>
+           <div class="he-t">día${faltan===1?'':'s'} para el descenso</div>
+           <p>Del 22 al 26 de julio. El plan está montado día a día y los sitios ya están en el mapa.</p>
+           <div class="hoy-acc">
+             <button type="button" class="btn btn-p" onclick="irATab('plan',true)">📋 Ver el plan</button>
+             <button type="button" class="btn btn-s" onclick="irATab('explora',true)">🗺️ Los sitios</button>
+           </div></div>`
+      : `<div class="hoy-espera">
+           <div class="he-n">🛶</div>
+           <div class="he-t">viaje terminado</div>
+           <p>El plan, los sitios y las fotos siguen aquí para la próxima.</p>
+           <div class="hoy-acc">
+             <button type="button" class="btn btn-p" onclick="irATab('explora',true)">🗺️ Ver los sitios</button>
+           </div></div>`;
+    return;
+  }
+
+  const n=dia.querySelector('.pd-num');
+  const h3=dia.querySelector('.pd-head h3').cloneNode(true);
+  const marca=h3.querySelector('.pd-hoy'); if(marca) marca.remove();   // el "hoy" del plan sobra aquí
+  const clima=dia.querySelector('.pd-clima').innerHTML;
+  const sol=dia.querySelector('.pd-sol').textContent;
+  eyebrow.textContent='ahora mismo';
+  titulo.textContent='Hoy';
+
+  const filas=filasDeHoy(dia);
+  const ahora=new Date().getHours()*60+new Date().getMinutes();
+  const pendientes=filas.filter(f=>!f.hecho);
+  // "ahora toca" = lo pendiente más cercano a esta hora. Lo que lleva mucho rato
+  // pasado y nadie tachó se da por olvidado: si no, tachar algo te manda atrás.
+  // ponytail: hora y media a ojo; si el grupo va muy a su bola, subir el margen.
+  const MARGEN=90;
+  const actual=pendientes.find(f=>f.min>=ahora-MARGEN) || pendientes[pendientes.length-1] || null;
+  const luego=actual ? pendientes.filter(f=>f.min>actual.min) : [];
+
+  const tick=f=>`<button type="button" class="pd-tick" data-id="${f.id}" aria-label="Marcar como hecho"></button>`;
+  cont.innerHTML=`
+    <div class="hoy-dia">
+      <div class="hoy-top">
+        <div class="hoy-n">${n.firstChild.textContent}<small>${n.querySelector('small').textContent}</small></div>
+        <div><h3>${h3.innerHTML}</h3><div class="hoy-sub">${dia.querySelector('.pd-sub').textContent}</div></div>
+      </div>
+      ${(clima||sol)?`<div class="hoy-meta">${clima}${sol?`<span>${sol}</span>`:''}</div>`:''}
+    </div>
+    ${actual?`
+    <div class="hoy-ahora">
+      <div class="et">${actual.min<=ahora?'ahora toca':'lo siguiente'}</div>
+      <div class="hr">${actual.hora}</div>
+      <div class="tx">${actual.txt}</div>
+    </div>`:`
+    <div class="hoy-fin">✅ <b>Todo hecho por hoy.</b><br>Disfruta del día sin mirar el móvil.</div>`}
+    ${luego.length?`
+    <div class="hoy-luego">
+      <div class="et">después</div>
+      ${luego.map(f=>`<div class="pd-row"><span class="pd-hora">${f.hora}</span><span class="pd-txt">${f.txt}</span>${tick(f)}</div>`).join('')}
+    </div>`:''}
+    <div class="hoy-acc" style="justify-content:flex-start">
+      <button type="button" class="btn btn-p" onclick="irATab('plan',true)">📋 El día completo</button>
+      ${actual?`<button type="button" class="btn btn-s pd-tick-txt" data-id="${actual.id}">✅ Hecho: ${actual.hora}</button>`:''}
+    </div>`;
+}
+document.getElementById('tab-hoy').addEventListener('click',e=>{
+  const t=e.target.closest('.pd-tick,.pd-tick-txt');
+  if(t){
+    const id=t.dataset.id, i=P.hechos.indexOf(id);
+    i<0 ? P.hechos.push(id) : P.hechos.splice(i,1);
+    guardaPlan(); pintaPlan(); renderHoy(); return;
+  }
+  const lnk=e.target.closest('.lnk');                 // los enlaces vienen copiados del plan
+  if(lnk){
+    if(lnk.dataset.sitio) verSitio(lnk.dataset.sitio);
+    else if(lnk.dataset.tab) irATab(lnk.dataset.tab,true);
+  }
+});
+
 document.getElementById('tab-plan').addEventListener('click',e=>{
   const ab=e.target.closest('.ab button');
   if(ab){
@@ -1785,6 +1950,37 @@ if('IntersectionObserver' in window){
     .observe(document.querySelector('header.hero'));
 }
 
+/* ============ COMPARTIR EL ESTADO CON EL GRUPO ============
+   Sin servidor ni cuentas: el estado (favoritos, opciones A/B, cosas hechas y
+   teléfonos) se empaqueta en el propio enlace. Quien lo abre, lo importa.
+   ponytail: si algún día no cabe en una URL (~2000 car.), tocaría comprimir o
+   subirlo a algún sitio; con 60 sitios y 5 días no se acerca. */
+const b64=s=>btoa(String.fromCharCode(...new TextEncoder().encode(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const deB64=s=>new TextDecoder().decode(Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0)));
+function enlaceEstado(){
+  const e={f:[...favs],ab:P.ab,h:P.hechos,t:TELS};
+  return location.href.split('#')[0]+'#s='+b64(JSON.stringify(e));
+}
+function importaEstado(cod){
+  let e; try{ e=JSON.parse(deB64(cod)); }catch(err){ avisa('⚠️ Ese enlace no se entiende'); return; }
+  if(!e||typeof e!=='object') return;
+  const n=(e.f||[]).length, m=(e.h||[]).length;
+  if(!confirm(`Vas a cargar el plan del grupo: ${n} favorito${n===1?'':'s'} y ${m} cosa${m===1?'':'s'} marcada${m===1?'':'s'}.\n\nEsto sustituye lo que tengas guardado en este móvil. ¿Seguimos?`)) return;
+  favs=new Set(e.f||[]);            guardaFavs();
+  P.ab=e.ab||{}; P.hechos=e.h||[];  guardaPlan();
+  if(e.t&&typeof e.t==='object'){ TELS=e.t; try{localStorage.setItem(TEL_K,JSON.stringify(TELS))}catch(x){} pintaTels(); }
+  pintaPlan(); renderExplora(); renderHoy();
+  avisa('✅ Plan del grupo cargado');
+}
+document.getElementById('btn-grupo').onclick=async()=>{
+  const url=enlaceEstado();
+  const datos={title:'Nuestro plan del Sella',text:'Ábrelo y se te copia mi plan: favoritos, opciones de cada día y lo ya hecho 🛶',url};
+  try{
+    if(navigator.share) await navigator.share(datos);
+    else { await navigator.clipboard.writeText(url); avisa('🔗 Enlace del plan copiado'); }
+  }catch(e){}
+};
+
 /* ============ AUTOCOMPROBACIÓN (abre con ?selftest) ============ */
 if(location.search.includes('selftest')){
   const ok=(c,q)=>console[c?'log':'error']((c?'✅':'❌')+' '+q);
@@ -1816,11 +2012,29 @@ if(location.search.includes('selftest')){
   ok(limpiaTel(' 985 <b>84</b>9098 ')==='985 849098','limpiaTel: solo dígitos, + y espacios (nada de HTML)');
   ok(Math.round(distDe({lat:43.4631,lon:-5.0561},{lat:43.3888,lon:-5.1836}))===13,
      'distDe: Arriondas → Ribadesella son ~13 km en línea recta');
+  ok(hhmm('7:30')===450 && hhmm('21:30')===1290,'hhmm: la hora del plan pasa a minutos');
+  const est={f:['Playa de Toró','La Joguería'],ab:{23:'b'},h:['23-4'],t:{casa:'985 000 000'}};
+  ok(JSON.stringify(JSON.parse(deB64(b64(JSON.stringify(est)))))===JSON.stringify(est),
+     'enlace del grupo: ida y vuelta sin perder tildes ni eñes');
+  ok(!/[+/=]/.test(b64(JSON.stringify(est))),'enlace del grupo: base64 apto para URL (sin + / =)');
+  ok(enlaceEstado().includes('#s='),'enlaceEstado: el estado viaja en el hash, sin servidor');
+  ok(enlaceEstado().length<2000,'enlaceEstado: el enlace cabe en una URL normal');
+  const dia0=document.querySelector('.plan-dia');
+  ok(filasDeHoy(dia0).length>0,'filasDeHoy: lee las filas del plan (no duplica los datos)');
+  ok(filasDeHoy(dia0).every((f,i,a)=>!i||f.min>=a[i-1].min),'filasDeHoy: salen ordenadas por hora');
 }
 
 /* ============ ARRANQUE (al final: todo definido ya) ============ */
 pintaPlan(); pintaTels(); pintaOffline();
-irATab(location.hash.slice(1)||'explora',false);
+const _h=location.hash.slice(1);
+if(_h.startsWith('s=')){                          // enlace compartido: importar y limpiar
+  const cod=_h.slice(2);
+  history.replaceState(null,'',location.href.split('#')[0]);
+  irATab('hoy',false);
+  setTimeout(()=>importaEstado(cod),350);         // que la página se vea antes del confirm
+}else{
+  irATab(_h||'hoy',false);
+}
 </script>
 </body>
 </html>
